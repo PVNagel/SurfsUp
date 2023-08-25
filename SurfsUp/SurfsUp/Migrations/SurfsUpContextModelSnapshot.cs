@@ -32,10 +32,6 @@ namespace SurfsUp.Migrations
                     b.Property<string>("Equipment")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Image")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<float>("Length")
                         .HasColumnType("real");
 

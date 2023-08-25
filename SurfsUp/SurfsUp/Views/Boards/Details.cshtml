@@ -68,8 +68,10 @@
  
     </div>
     <div class="BoardImg" style="float: left; height: 350px; width: 500px">
+        @foreach(IFormFile file in Model.Attachments){
+            <img href="" style="float:left; height: 200px; width: 200px" src="@($"/Images/{Model.Id}/" + file.FileName)"/>
+        }
 
-        <img href="" style="float:left; height: 200px; width: 200px" src="https://www.light-surfboards.com/uploads/5/7/3/0/57306051/s326152794241300969_p347_i16_w5000.jpeg?width=640" />
         <img href="" style="float:left; height: 200px; width: 200px" src="https://www.light-surfboards.com/uploads/5/7/3/0/57306051/s326152794241300969_p347_i16_w5000.jpeg?width=640" />
         <img href="" style="height: 200px; width: 200px" src="https://www.light-surfboards.com/uploads/5/7/3/0/57306051/s326152794241300969_p347_i16_w5000.jpeg?width=640" />
     </div>
