@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SurfsUp.Models
 {
@@ -8,7 +9,7 @@ namespace SurfsUp.Models
         public int Id { get; set; }
         
         [Required] 
-        public string Name { get; set; }
+        public string? Name { get; set; }
         [Required]
         public float Length { get; set; }
         [Required]
@@ -23,6 +24,9 @@ namespace SurfsUp.Models
         [DataType (DataType.Currency)]
         public float Price { get; set; }
         public string? Equipment { get; set; }
+        [Required]
+        [NotMapped]
+        public IList<IFormFile> Attachments { get; set; }
     }
     public enum Type
     {

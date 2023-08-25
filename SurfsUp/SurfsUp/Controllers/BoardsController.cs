@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -13,10 +14,12 @@ namespace SurfsUp.Controllers
     public class BoardsController : Controller
     {
         private readonly SurfsUpContext _context;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public BoardsController(SurfsUpContext context)
+        public BoardsController(SurfsUpContext context, IWebHostEnvironment webHostEnvironment)
         {
             _context = context;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         // GET: Boards
@@ -42,6 +45,23 @@ namespace SurfsUp.Controllers
                 return NotFound();
             }
 
+            string rootPath = _webHostEnvironment.WebRootPath;
+            var path = Path.Combine(rootPath + "/Images/" + id);
+            string[] filePaths = Directory.GetFiles(path);
+
+            List<IFormFile> files = new List<IFormFile>();  // List that will hold the files and subfiles in path
+            foreach (string filePath in filePaths)
+            {
+                IFormFile file = new FormFile(
+                    baseStream: new System.IO.FileStream(filePath, System.IO.FileMode.Open),
+                    baseStreamOffset: 0,
+                    length: new System.IO.FileInfo(filePath).Length,
+                    name: "formFile",
+                    fileName: System.IO.Path.GetFileName(filePath));
+                files.Add(file);
+            }
+
+            board.Attachments = files;
             return View(board);
         }
 
@@ -56,12 +76,35 @@ namespace SurfsUp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Length,Width,Thickness,Volume,Price,Equipment")] Board board)
+        public async Task<IActionResult> Create([Bind("Id,Name,Length,Width,Thickness,Volume,Price,Equipment,Attachments")] Board board)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(board);
+                var entity = _context.Add(board).Entity;
                 await _context.SaveChangesAsync();
+
+                long size = board.Attachments.Sum(f => f.Length);
+                string rootPath = _webHostEnvironment.WebRootPath;
+                foreach (var formFile in board.Attachments)
+                {
+                    if (formFile.Length > 0)
+                    {
+                        var filePath = Path.Combine(rootPath + "/Images/" + entity.Id);
+
+                        if (!Directory.Exists(filePath))
+                        {
+                            Directory.CreateDirectory(filePath);
+                        }
+
+                        filePath = Path.Combine(rootPath + "/Images/" + entity.Id, formFile.FileName);
+
+                        using (var stream = System.IO.File.Create(filePath))
+                        {
+                            await formFile.CopyToAsync(stream);
+                        }
+                    }
+                }
+
                 return RedirectToAction(nameof(Index));
             }
             return View(board);
