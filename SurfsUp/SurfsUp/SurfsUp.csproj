@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <Folder Include="Views\CSS\" />
+    <Folder Include="wwwroot\Images\" />
   </ItemGroup>
 
 </Project>

@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using static System.Net.WebRequestMethods;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SurfsUp.Models
 {
@@ -9,7 +10,7 @@ namespace SurfsUp.Models
         public int Id { get; set; }
         
         [Required] 
-        public string Name { get; set; }
+        public string? Name { get; set; }
         [Required]
         public float Length { get; set; }
         [Required]
@@ -24,8 +25,9 @@ namespace SurfsUp.Models
         [DataType (DataType.Currency)]
         public float Price { get; set; }
         public string? Equipment { get; set; }
-
         public string Image { get; set; } = "https://www.light-surfboards.com/uploads/5/7/3/0/57306051/s326152794241300969_p347_i16_w5000.jpeg?width=640";
+        [NotMapped]
+        public IList<IFormFile> Attachments { get; set; }
     }
     public enum Type
     {
