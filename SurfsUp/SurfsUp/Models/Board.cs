@@ -13,33 +13,27 @@ namespace SurfsUp.Models
         [DataType(DataType.Text)]
         public string? Name { get; set; }
         [Required]
-        [RegularExpression(@"^[1-9][0-9]*(?:,[0-9]+)?$", ErrorMessage = "Du må kun skrive tal og komma som decimal seperator.")]
+        [RegularExpression(@"^[0-9]+,[0-9]+$", ErrorMessage = "Du må kun skrive tal og komma som decimal seperator.")]
         public double Length { get; set; }
         [Required]
-        [RegularExpression(@"^[1-9][0-9]*(?:,[0-9]+)?$", ErrorMessage = "Du må kun skrive tal og komma som decimal seperator.")]
+        [RegularExpression(@"^[0-9]+,[0-9]+$", ErrorMessage = "Du må kun skrive tal og komma som decimal seperator.")]
         public double Width { get; set; }
         [Required]
-        [RegularExpression(@"^[1-9][0-9]*(?:,[0-9]+)?$", ErrorMessage = "Du må kun skrive tal og komma som decimal seperator.")]
+        [RegularExpression(@"^[0-9]+,[0-9]+$", ErrorMessage = "Du må kun skrive tal og komma som decimal seperator.")]
         public double Thickness { get; set; }
         [Required]
-        [RegularExpression(@"^[1-9][0-9]*(?:,[0-9]+)?$", ErrorMessage = "Du må kun skrive tal og komma som decimal seperator.")]
+        [RegularExpression(@"^[0-9]+,[0-9]+$", ErrorMessage = "Du må kun skrive tal og komma som decimal seperator.")]
         public double Volume { get; set; }
         [Required]
         public Type Type { get; set; }
         [Required]
         [DataType (DataType.Currency)]
-        [RegularExpression(@"^[1-9][0-9]*(?:,[0-9]+)?$", ErrorMessage = "Du må kun skrive tal og komma som decimal seperator.")]
+        [RegularExpression(@"^[0-9]+,[0-9]+$", ErrorMessage = "Du må kun skrive tal og komma som decimal seperator.")]
         public double Price { get; set; }
         [DataType(DataType.Text)]
         public string? Equipment { get; set; }
         [NotMapped]
         public IList<IFormFile>? Attachments { get; set; }
-
-
-        [NotMapped]
-        public string? ImagePath { get; set; }
-
-
     }
     public enum Type
     {

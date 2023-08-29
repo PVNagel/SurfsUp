@@ -89,9 +89,9 @@ namespace SurfsUp.Controllers
                 var entity = _context.Add(board).Entity;
                 await _context.SaveChangesAsync();
 
+
                 if(board.Attachments != null)
                 {
-                    long size = board.Attachments.Sum(f => f.Length);
                     string rootPath = _webHostEnvironment.WebRootPath;
                     foreach (var formFile in board.Attachments)
                     {
@@ -108,11 +108,14 @@ namespace SurfsUp.Controllers
 
                             using (var stream = System.IO.File.Create(filePath))
                             {
+
                                 await formFile.CopyToAsync(stream);
                             }
                         }
                     }
                 }
+                    
+
                 
 
                 return RedirectToAction(nameof(Index));
@@ -183,27 +186,30 @@ namespace SurfsUp.Controllers
                     _context.Update(board);
                     await _context.SaveChangesAsync();
 
-                    long size = board.Attachments.Sum(f => f.Length);
-                    string rootPath = _webHostEnvironment.WebRootPath;
-                    foreach (var formFile in board.Attachments)
+                    if(board.Attachments != null)
                     {
-                        if (formFile.Length > 0)
+                        string rootPath = _webHostEnvironment.WebRootPath;
+                        foreach (var formFile in board.Attachments)
                         {
-                            var filePath = Path.Combine(rootPath + "/Images/" + id);
-
-                            if (!Directory.Exists(filePath))
+                            if (formFile.Length > 0)
                             {
-                                Directory.CreateDirectory(filePath);
-                            }
+                                var filePath = Path.Combine(rootPath + "/Images/" + id);
 
-                            filePath = Path.Combine(rootPath + "/Images/" + id, formFile.FileName);
+                                if (!Directory.Exists(filePath))
+                                {
+                                    Directory.CreateDirectory(filePath);
+                                }
 
-                            using (var stream = System.IO.File.Create(filePath))
-                            {
-                                await formFile.CopyToAsync(stream);
+                                filePath = Path.Combine(rootPath + "/Images/" + id, formFile.FileName);
+
+                                using (var stream = System.IO.File.Create(filePath))
+                                {
+                                    await formFile.CopyToAsync(stream);
+                                }
                             }
                         }
                     }
+                    
 
                 }
                 catch (DbUpdateConcurrencyException)
@@ -312,7 +318,7 @@ namespace SurfsUp.Controllers
 
             System.IO.File.Delete(filePath);
 
-            return RedirectToAction("Index");
+            return RedirectToAction(nameof(Edit), new { id = id });
         }
     }
 }

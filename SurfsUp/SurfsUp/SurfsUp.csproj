@@ -7,6 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Views\CSS\**" />
+    <Content Remove="Views\CSS\**" />
+    <EmbeddedResource Remove="Views\CSS\**" />
+    <None Remove="Views\CSS\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.21" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.21">
       <PrivateAssets>all</PrivateAssets>
@@ -16,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Views\CSS\" />
+    <Folder Include="Migrations\" />
     <Folder Include="wwwroot\Images\" />
     <Folder Include="wwwroot\SeedImages\" />
   </ItemGroup>

@@ -20,27 +20,27 @@
             </div>
             <div class="form-group">
                 <label asp-for="Length" class="control-label"></label>
-                <input name="Length" class="form-control"  />
+                <input asp-for="Length" class="form-control"  />
                 <span asp-validation-for="Length" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Width" class="control-label"></label>
-                <input name="Width" class="form-control"  />
+                <input asp-for="Width" class="form-control" />
                 <span asp-validation-for="Width" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Thickness" class="control-label"></label>
-                <input name="Thickness" class="form-control"  />
+                <input asp-for="Thickness" class="form-control" />
                 <span asp-validation-for="Thickness" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Volume" class="control-label"></label>
-                <input name="Volume" class="form-control"  />
+                <input asp-for="Volume" class="form-control" />
                 <span asp-validation-for="Volume" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Price" class="control-label"></label>
-                <input name="Price" class="form-control" />
+                <input asp-for="Price" class="form-control" />
                 <span asp-validation-for="Price" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -65,15 +65,16 @@
         </form>
     </div>
     <div class="BoardImg" style="float: left; height: 350px; width: 500px">
+
         @if(Model.Attachments != null)
         {
             @foreach (IFormFile file in Model.Attachments)
             {
                 <img href="" style="float:left; height: 200px; width: 200px" src="@($"/Images/{Model.Id}/" + file.FileName)" />
                 <form asp-action="DeleteImgConfirmed">
-                    <input value="@file.FileName" name="fileName" hidden/>
-                    <input value="@Model.Id" name="id" hidden/>
-                    <input type="submit" value="Delete" class="btn btn-danger"  />
+                    <input value="@file.FileName" name="fileName" hidden />
+                    <input value="@Model.Id" name="id" hidden />
+                    <button type="submit" class="btn btn-danger">Delete</button>
                 </form>
                 
             }

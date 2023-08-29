@@ -69,13 +69,14 @@
 
     </div>
     <div class="BoardImg" style="float: left; height: 350px; width: 500px">
-        <img href="" style="float:left; height: 200px; width: 200px" src=@($"/SeedImages/{Model.ImagePath}") />
+
+        
 
         @if (Model.Attachments != null)
         {
             @foreach (IFormFile file in Model.Attachments)
             {
-                <img href="" style="float:left; height: 200px; width: 200px" src="@($"/Images/{Model.Id}/" + file.FileName)" />
+                <img alt="test" style="float:left; height: 200px; width: 200px" src="@($"/Images/{Model.Id}/" + file.FileName)" />
             }
         }
 
