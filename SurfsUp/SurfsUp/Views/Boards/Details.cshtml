@@ -2,72 +2,75 @@
 
 @{
     ViewData["Title"] = "Details";
-    <link rel="DetailsStyleSheet" href="DetailsStyleSheet.css"/>
+    <link rel="DetailsStyleSheet" href="DetailsStyleSheet.css" />
 }
 
 <h1>Details</h1>
 
-<div >
+<div>
     <h4>Board</h4>
     <hr />
     <div style="float: left; width: 650px;">
-    <dl class="row">
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Name)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Length)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Length)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Width)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Width)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Thickness)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Thickness)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Volume)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Volume)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Type)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Type)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Price)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Price)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Equipment)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Equipment)
-        </dd>
-    </dl>
+        <dl class="row">
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.Name)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Name)
+            </dd>
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.Length)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Length)
+            </dd>
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.Width)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Width)
+            </dd>
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.Thickness)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Thickness)
+            </dd>
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.Volume)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Volume)
+            </dd>
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.Type)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Type)
+            </dd>
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.Price)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Price)
+            </dd>
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.Equipment)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Equipment)
+            </dd>
+            
+        </dl>
         <div style="float: left;">
             <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
             <a asp-action="Index">Back to List</a>
         </div>
- 
+
     </div>
     <div class="BoardImg" style="float: left; height: 350px; width: 500px">
+        <img href="" style="float:left; height: 200px; width: 200px" src=@($"/SeedImages/{Model.ImagePath}") />
+
         @if (Model.Attachments != null)
         {
             @foreach (IFormFile file in Model.Attachments)
@@ -75,6 +78,7 @@
                 <img href="" style="float:left; height: 200px; width: 200px" src="@($"/Images/{Model.Id}/" + file.FileName)" />
             }
         }
+
     </div>
 
 </div>

@@ -30,7 +30,8 @@ namespace SurfsUp.Data
                         Volume = 38.8F,
                         Type = Models.Type.Shortboard,
                         Price = 565,
-                        Equipment = null
+                        Equipment = null,
+                        ImagePath = "a.jpg"
                     },
 
                     new Board
@@ -42,7 +43,8 @@ namespace SurfsUp.Data
                         Volume = 44.16F,
                         Type = Models.Type.Funboard,
                         Price = 685,
-                        Equipment = null
+                        Equipment = null,
+                        ImagePath = "c.jpg"
                     },
 
                     new Board
@@ -54,8 +56,10 @@ namespace SurfsUp.Data
                         Volume = 43.22F,
                         Type = Models.Type.Funboard,
                         Price = 695,
-                        Equipment = null
+                        Equipment = null,
+                        ImagePath = "d.jpg"
                     },
+
 
                     new Board
                     {
@@ -66,7 +70,8 @@ namespace SurfsUp.Data
                         Volume = 29.39F,
                         Type = Models.Type.Fish,
                         Price = 645,
-                        Equipment = null
+                        Equipment = null,
+                        ImagePath = "a.jpg"
                     },
 
                     new Board
@@ -78,7 +83,8 @@ namespace SurfsUp.Data
                         Volume = 65.4F,
                         Type = Models.Type.Longboard,
                         Price = 895,
-                        Equipment = null
+                        Equipment = null,
+                        ImagePath = "c.jpg"
                     },
 
                     new Board
@@ -90,7 +96,8 @@ namespace SurfsUp.Data
                         Volume = 33.7F,
                         Type = Models.Type.Shortboard,
                         Price = 645,
-                        Equipment = null
+                        Equipment = null,
+                        ImagePath = "d.jpg"
                     },
 
                     new Board
@@ -102,7 +109,8 @@ namespace SurfsUp.Data
                         Volume = 80F,
                         Type = Models.Type.Longboard,
                         Price = 1025,
-                        Equipment = null
+                        Equipment = null,
+                        ImagePath = "a.jpg"
                     },
 
                     new Board
@@ -114,7 +122,8 @@ namespace SurfsUp.Data
                         Volume = 301F,
                         Type = Models.Type.SUP,
                         Price = 854,
-                        Equipment = "Paddle"
+                        Equipment = "Paddle",
+                        ImagePath = "c.jpg"
                     },
 
                     new Board
@@ -126,7 +135,8 @@ namespace SurfsUp.Data
                         Volume = 270F,
                         Type = Models.Type.SUP,
                         Price = 611,
-                        Equipment = "Paddle, Fin, Pump, Leash"
+                        Equipment = "Paddle, Fin, Pump, Leash",
+                        ImagePath = "d.jpg"
                     },
 
                     new Board
@@ -138,8 +148,10 @@ namespace SurfsUp.Data
                         Volume = 330F,
                         Type = Models.Type.SUP,
                         Price = 1304,
-                        Equipment = "Paddle, Fin, Pump, Leash"
+                        Equipment = "Paddle, Fin, Pump, Leash",
+                        ImagePath = "a.jpg"
                     }
+
                 );
                 context.SaveChanges();
             }

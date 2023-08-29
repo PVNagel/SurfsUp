@@ -27,6 +27,8 @@ namespace SurfsUp.Models
         public string? Equipment { get; set; }
         [NotMapped]
         public IList<IFormFile> Attachments { get; set; }
+
+        public string ImagePath { get; set; }
     }
     public enum Type
     {
