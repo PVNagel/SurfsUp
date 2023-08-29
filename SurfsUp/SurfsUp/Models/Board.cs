@@ -13,23 +13,23 @@ namespace SurfsUp.Models
         [DataType(DataType.Text)]
         public string? Name { get; set; }
         [Required]
-        [RegularExpression(@"^[0-9]+,[0-9]+$", ErrorMessage = "Du må kun skrive tal og komma som decimal seperator.")]
-        public double Length { get; set; }
+        [RegularExpression(@"^[1-9][0-9]*(?:,[0-9]+)?$", ErrorMessage = "Du må kun bruge tal og 1 enkelt komma.")]
+        public string? Length { get; set; }
         [Required]
-        [RegularExpression(@"^[0-9]+,[0-9]+$", ErrorMessage = "Du må kun skrive tal og komma som decimal seperator.")]
-        public double Width { get; set; }
+        [RegularExpression(@"^[1-9][0-9]*(?:,[0-9]+)?$", ErrorMessage = "Du må kun bruge tal og 1 enkelt komma.")]
+        public string? Width { get; set; }
         [Required]
-        [RegularExpression(@"^[0-9]+,[0-9]+$", ErrorMessage = "Du må kun skrive tal og komma som decimal seperator.")]
-        public double Thickness { get; set; }
+        [RegularExpression(@"^[1-9][0-9]*(?:,[0-9]+)?$", ErrorMessage = "Du må kun bruge tal og 1 enkelt komma.")]
+        public string? Thickness { get; set; }
         [Required]
-        [RegularExpression(@"^[0-9]+,[0-9]+$", ErrorMessage = "Du må kun skrive tal og komma som decimal seperator.")]
-        public double Volume { get; set; }
+        [RegularExpression(@"^[1-9][0-9]*(?:,[0-9]+)?$", ErrorMessage = "Du må kun bruge tal og 1 enkelt komma.")]
+        public string? Volume { get; set; }
         [Required]
         public Type Type { get; set; }
         [Required]
         [DataType (DataType.Currency)]
-        [RegularExpression(@"^[0-9]+,[0-9]+$", ErrorMessage = "Du må kun skrive tal og komma som decimal seperator.")]
-        public double Price { get; set; }
+        [RegularExpression(@"^[1-9][0-9]*(?:,[0-9]+)?$", ErrorMessage = "Du må kun bruge tal og 1 enkelt komma.")]
+        public string? Price { get; set; }
         [DataType(DataType.Text)]
         public string? Equipment { get; set; }
         [NotMapped]
