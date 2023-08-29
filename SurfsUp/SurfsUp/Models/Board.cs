@@ -33,7 +33,13 @@ namespace SurfsUp.Models
         [DataType(DataType.Text)]
         public string? Equipment { get; set; }
         [NotMapped]
+
+       
+
+        public string ImagePath { get; set; }
+
         public IList<IFormFile>? Attachments { get; set; }
+
     }
     public enum Type
     {

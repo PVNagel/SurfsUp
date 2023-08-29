@@ -18,6 +18,7 @@
   <ItemGroup>
     <Folder Include="Views\CSS\" />
     <Folder Include="wwwroot\Images\" />
+    <Folder Include="wwwroot\SeedImages\" />
   </ItemGroup>
 
 </Project>
