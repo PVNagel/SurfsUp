@@ -9,24 +9,31 @@ namespace SurfsUp.Models
         [Key]
         public int Id { get; set; }
         
-        [Required] 
+        [Required]
+        [DataType(DataType.Text)]
         public string? Name { get; set; }
         [Required]
-        public float Length { get; set; }
+        [RegularExpression(@"^[1-9][0-9]*(?:,[0-9]+)?$", ErrorMessage = "Du må kun skrive tal og komma som decimal seperator.")]
+        public double Length { get; set; }
         [Required]
-        public float Width { get; set; }
+        [RegularExpression(@"^[1-9][0-9]*(?:,[0-9]+)?$", ErrorMessage = "Du må kun skrive tal og komma som decimal seperator.")]
+        public double Width { get; set; }
         [Required]
-        public float Thickness { get; set; }
+        [RegularExpression(@"^[1-9][0-9]*(?:,[0-9]+)?$", ErrorMessage = "Du må kun skrive tal og komma som decimal seperator.")]
+        public double Thickness { get; set; }
         [Required]
-        public float Volume { get; set; }
+        [RegularExpression(@"^[1-9][0-9]*(?:,[0-9]+)?$", ErrorMessage = "Du må kun skrive tal og komma som decimal seperator.")]
+        public double Volume { get; set; }
         [Required]
         public Type Type { get; set; }
         [Required]
         [DataType (DataType.Currency)]
-        public float Price { get; set; }
+        [RegularExpression(@"^[1-9][0-9]*(?:,[0-9]+)?$", ErrorMessage = "Du må kun skrive tal og komma som decimal seperator.")]
+        public double Price { get; set; }
+        [DataType(DataType.Text)]
         public string? Equipment { get; set; }
         [NotMapped]
-        public IList<IFormFile> Attachments { get; set; }
+        public IList<IFormFile>? Attachments { get; set; }
     }
     public enum Type
     {
