@@ -89,27 +89,31 @@ namespace SurfsUp.Controllers
                 var entity = _context.Add(board).Entity;
                 await _context.SaveChangesAsync();
 
-                long size = board.Attachments.Sum(f => f.Length);
-                string rootPath = _webHostEnvironment.WebRootPath;
-                foreach (var formFile in board.Attachments)
+                if(board.Attachments != null)
                 {
-                    if (formFile.Length > 0)
+                    long size = board.Attachments.Sum(f => f.Length);
+                    string rootPath = _webHostEnvironment.WebRootPath;
+                    foreach (var formFile in board.Attachments)
                     {
-                        var filePath = Path.Combine(rootPath + "/Images/" + entity.Id);
-
-                        if (!Directory.Exists(filePath))
+                        if (formFile.Length > 0)
                         {
-                            Directory.CreateDirectory(filePath);
-                        }
+                            var filePath = Path.Combine(rootPath + "/Images/" + entity.Id);
 
-                        filePath = Path.Combine(rootPath + "/Images/" + entity.Id, formFile.FileName);
+                            if (!Directory.Exists(filePath))
+                            {
+                                Directory.CreateDirectory(filePath);
+                            }
 
-                        using (var stream = System.IO.File.Create(filePath))
-                        {
-                            await formFile.CopyToAsync(stream);
+                            filePath = Path.Combine(rootPath + "/Images/" + entity.Id, formFile.FileName);
+
+                            using (var stream = System.IO.File.Create(filePath))
+                            {
+                                await formFile.CopyToAsync(stream);
+                            }
                         }
                     }
                 }
+                
 
                 return RedirectToAction(nameof(Index));
             }
