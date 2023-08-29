@@ -10,7 +10,7 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Edit">
+        <form asp-action="Edit" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
             <div class="form-group">
@@ -49,9 +49,35 @@
                 <span asp-validation-for="Equipment" class="text-danger"></span>
             </div>
             <div class="form-group">
+                <dl>
+                    <dt>
+                        <label asp-for="Attachments"></label>
+                    </dt>
+                    <dd>
+                        <input asp-for="Attachments" type="file" multiple>
+                        <span asp-validation-for="Attachments"></span>
+                    </dd>
+                </dl>
+            </div>
+            <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>
         </form>
+    </div>
+    <div class="BoardImg" style="float: left; height: 350px; width: 500px">
+        @if(Model.Attachments != null)
+        {
+            @foreach (IFormFile file in Model.Attachments)
+            {
+                <img href="" style="float:left; height: 200px; width: 200px" src="@($"/Images/{Model.Id}/" + file.FileName)" />
+                <form asp-action="DeleteImgConfirmed">
+                    <input value="@file.FileName" name="fileName" hidden/>
+                    <input value="@Model.Id" name="id" hidden/>
+                    <input type="submit" value="Delete" class="btn btn-danger"  />
+                </form>
+                
+            }
+        }
     </div>
 </div>
 
@@ -60,5 +86,7 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    }
