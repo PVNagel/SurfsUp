@@ -89,7 +89,6 @@ namespace SurfsUp.Controllers
                 var entity = _context.Add(board).Entity;
                 await _context.SaveChangesAsync();
 
-
                 if(board.Attachments != null)
                 {
                     string rootPath = _webHostEnvironment.WebRootPath;
@@ -310,7 +309,7 @@ namespace SurfsUp.Controllers
         //POST: Boards/Edit/DeleteImg
         [HttpPost, ActionName("DeleteImgConfirmed")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteImgConfirmed(string fileName, int id)
+        public IActionResult DeleteImgConfirmed(string fileName, int id)
         {
             string rootPath = _webHostEnvironment.WebRootPath;
 

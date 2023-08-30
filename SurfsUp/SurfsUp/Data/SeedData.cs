@@ -34,7 +34,7 @@ namespace SurfsUp.Data
                         Thickness = "2,75",
                         Volume = "38.8",
                         Type = Models.Type.Shortboard,
-                        Price = "565",
+                        Price = 565,
                         Equipment = null
                     }).Entity);
 
@@ -47,7 +47,7 @@ namespace SurfsUp.Data
         Thickness = "2,75",
         Volume = "38.8",
         Type = Models.Type.Shortboard,
-        Price = "565",
+        Price = 565,
         Equipment = null
     }).Entity);
 
@@ -60,7 +60,7 @@ namespace SurfsUp.Data
         Thickness = "2,75",
         Volume = "38.8",
         Type = Models.Type.Shortboard,
-        Price = "565",
+        Price = 565,
         Equipment = null
     }).Entity);
 
@@ -74,7 +74,7 @@ namespace SurfsUp.Data
         Thickness = "2,75",
         Volume = "38.8",
         Type = Models.Type.Shortboard,
-        Price = "565",
+        Price = 565,
         Equipment = null
     }).Entity);
 
@@ -87,7 +87,7 @@ namespace SurfsUp.Data
         Thickness = "2,75",
         Volume = "38.8",
         Type = Models.Type.Shortboard,
-        Price = "565",
+        Price = 565,
         Equipment = null
     }).Entity);
 
@@ -100,7 +100,7 @@ namespace SurfsUp.Data
         Thickness = "2,75",
         Volume = "38.8",
         Type = Models.Type.Shortboard,
-        Price = "565",
+        Price = 565,
         Equipment = null
     }).Entity);
 
@@ -113,7 +113,7 @@ namespace SurfsUp.Data
         Thickness = "2,75",
         Volume = "38.8",
         Type = Models.Type.Shortboard,
-        Price = "565",
+        Price = 565,
         Equipment = null
     }).Entity);
 
@@ -126,7 +126,7 @@ namespace SurfsUp.Data
         Thickness = "2,75",
         Volume = "38.8",
         Type = Models.Type.Shortboard,
-        Price = "565",
+        Price = 565,
         Equipment = null
     }).Entity);
 
@@ -139,7 +139,7 @@ namespace SurfsUp.Data
         Thickness = "2,75",
         Volume = "38.8",
         Type = Models.Type.Shortboard,
-        Price = "565",
+        Price = 565,
         Equipment = null
     }).Entity);
 
@@ -152,7 +152,7 @@ namespace SurfsUp.Data
         Thickness = "2,75",
         Volume = "38.8",
         Type = Models.Type.Shortboard,
-        Price = "565",
+        Price = 565,
         Equipment = null
     }).Entity);
 

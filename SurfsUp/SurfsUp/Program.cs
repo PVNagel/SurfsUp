@@ -1,6 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Localization;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using SurfsUp.Data;
+using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<SurfsUpContext>(options =>
@@ -24,6 +26,28 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+
+var culture = new CultureInfo("da-DK");
+culture.NumberFormat.NumberDecimalSeparator = ",";
+culture.NumberFormat.CurrencyDecimalSeparator = ",";
+
+//var culture2 = new CultureInfo("en-US");
+//culture2.NumberFormat.NumberDecimalSeparator = ".";
+//culture2.NumberFormat.CurrencyDecimalSeparator = ".";
+
+// Configure the Localization middleware
+app.UseRequestLocalization(new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new RequestCulture(culture),
+    SupportedCultures = new List<CultureInfo>
+    {
+        culture
+    },
+    SupportedUICultures = new List<CultureInfo>
+    {
+        culture
+    }
+});
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

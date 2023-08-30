@@ -28,8 +28,7 @@ namespace SurfsUp.Models
         public Type Type { get; set; }
         [Required]
         [DataType (DataType.Currency)]
-        [RegularExpression(@"^[1-9][0-9]*(?:,[0-9]+)?$", ErrorMessage = "Du må kun bruge tal og 1 enkelt komma.")]
-        public string? Price { get; set; }
+        public decimal Price { get; set; }
         [DataType(DataType.Text)]
         public string? Equipment { get; set; }
         [NotMapped]
