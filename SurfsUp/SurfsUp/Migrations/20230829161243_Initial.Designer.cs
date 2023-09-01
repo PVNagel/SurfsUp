@@ -11,8 +11,8 @@ using SurfsUp.Data;
 namespace SurfsUp.Migrations
 {
     [DbContext(typeof(SurfsUpContext))]
-    [Migration("20230823103451_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20230829161243_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -32,27 +32,34 @@ namespace SurfsUp.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("Equipment")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<float>("Length")
-                        .HasColumnType("real");
+                    b.Property<string>("Length")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<float>("Price")
-                        .HasColumnType("real");
+                    b.Property<string>("Price")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<float>("Thickness")
-                        .HasColumnType("real");
+                    b.Property<string>("Thickness")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<float>("Volume")
-                        .HasColumnType("real");
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
 
-                    b.Property<float>("Width")
-                        .HasColumnType("real");
+                    b.Property<string>("Volume")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Width")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 

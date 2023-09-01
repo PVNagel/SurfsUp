@@ -32,27 +32,31 @@ namespace SurfsUp.Migrations
                     b.Property<string>("Equipment")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<float>("Length")
-                        .HasColumnType("real");
+                    b.Property<string>("Length")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<float>("Price")
-                        .HasColumnType("real");
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
 
-                    b.Property<float>("Thickness")
-                        .HasColumnType("real");
+                    b.Property<string>("Thickness")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Type")
                         .HasColumnType("int");
 
-                    b.Property<float>("Volume")
-                        .HasColumnType("real");
+                    b.Property<string>("Volume")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<float>("Width")
-                        .HasColumnType("real");
+                    b.Property<string>("Width")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 

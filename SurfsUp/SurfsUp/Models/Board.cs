@@ -1,4 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using static System.Net.WebRequestMethods;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SurfsUp.Models
 {
@@ -7,22 +9,30 @@ namespace SurfsUp.Models
         [Key]
         public int Id { get; set; }
         
-        [Required] 
-        public string Name { get; set; }
         [Required]
-        public float Length { get; set; }
+        [DataType(DataType.Text)]
+        public string? Name { get; set; }
         [Required]
-        public float Width { get; set; }
+        [RegularExpression(@"^[1-9][0-9]*(?:,[0-9]+)?$", ErrorMessage = "Du må kun bruge tal og 1 enkelt komma.")]
+        public string? Length { get; set; }
         [Required]
-        public float Thickness { get; set; }
+        [RegularExpression(@"^[1-9][0-9]*(?:,[0-9]+)?$", ErrorMessage = "Du må kun bruge tal og 1 enkelt komma.")]
+        public string? Width { get; set; }
         [Required]
-        public float Volume { get; set; }
+        [RegularExpression(@"^[1-9][0-9]*(?:,[0-9]+)?$", ErrorMessage = "Du må kun bruge tal og 1 enkelt komma.")]
+        public string? Thickness { get; set; }
+        [Required]
+        [RegularExpression(@"^[1-9][0-9]*(?:,[0-9]+)?$", ErrorMessage = "Du må kun bruge tal og 1 enkelt komma.")]
+        public string? Volume { get; set; }
         [Required]
         public Type Type { get; set; }
         [Required]
         [DataType (DataType.Currency)]
-        public float Price { get; set; }
+        public decimal Price { get; set; }
+        [DataType(DataType.Text)]
         public string? Equipment { get; set; }
+        [NotMapped]
+        public IList<IFormFile>? Attachments { get; set; }
     }
     public enum Type
     {

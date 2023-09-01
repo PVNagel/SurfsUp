@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing.Printing;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using SurfsUp.Data;
 using SurfsUp.Models;
@@ -13,13 +16,42 @@ namespace SurfsUp.Controllers
     public class BoardsController : Controller
     {
         private readonly SurfsUpContext _context;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public BoardsController(SurfsUpContext context)
+        public BoardsController(SurfsUpContext context, IWebHostEnvironment webHostEnvironment)
         {
             _context = context;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         // GET: Boards
+
+        public async Task<IActionResult> Index(string sortOrder,string currentFilter, string searchString, int? pageNumber)
+        {
+
+            ViewData["CurrenSort"] = sortOrder;
+
+            if (searchString != null)
+            {
+                pageNumber = 1;
+            }
+            else
+            {
+                searchString = currentFilter;
+            }
+
+            var boards = from s in _context.Board select s;
+
+            int pageSize = 5;
+
+          
+
+
+            //return _context.Board != null ? 
+            //          View(await _context.Board.ToListAsync()) :
+            //          Problem("Entity set 'SurfsUpContext.Board'  is null.");
+
+
         public async Task<IActionResult> Index(string sortOrder)
         
         {
@@ -61,9 +93,10 @@ namespace SurfsUp.Controllers
 
             }
 
-
-            return View(await boards.AsNoTracking().ToListAsync());
+            return View(await PaginatedList<Board>.CreateAsync(boards.AsNoTracking(), pageNumber ?? 1, pageSize));
+            //return View(await boards.AsNoTracking().ToListAsync());
                         
+
         }
 
         // GET: Boards/Details/5
@@ -81,6 +114,29 @@ namespace SurfsUp.Controllers
                 return NotFound();
             }
 
+            string rootPath = _webHostEnvironment.WebRootPath;
+            var path = Path.Combine(rootPath + "/Images/" + id);
+            if (Directory.Exists(path))
+            {
+                string[] filePaths = Directory.GetFiles(path);
+
+                List<IFormFile> files = new List<IFormFile>();  // List that will hold the files and subfiles in path
+                foreach (string filePath in filePaths)
+                {
+                    using (var stream = new System.IO.FileStream(filePath, System.IO.FileMode.Open))
+                    {
+                        IFormFile file = new FormFile(
+                        baseStream: stream,
+                        baseStreamOffset: 0,
+                        length: new System.IO.FileInfo(filePath).Length,
+                        name: "formFile",
+                        fileName: System.IO.Path.GetFileName(filePath));
+                        files.Add(file);
+                    }
+                }
+
+                board.Attachments = files;
+            }
             return View(board);
         }
 
@@ -95,12 +151,41 @@ namespace SurfsUp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Length,Width,Thickness,Volume,Price,Equipment")] Board board)
+        public async Task<IActionResult> Create([Bind("Id,Name,Length,Width,Thickness,Volume,Price,Equipment,Attachments")] Board board)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(board);
+                var entity = _context.Add(board).Entity;
                 await _context.SaveChangesAsync();
+
+                if(board.Attachments != null)
+                {
+                    string rootPath = _webHostEnvironment.WebRootPath;
+                    foreach (var formFile in board.Attachments)
+                    {
+                        if (formFile.Length > 0)
+                        {
+                            var filePath = Path.Combine(rootPath + "/Images/" + entity.Id);
+
+                            if (!Directory.Exists(filePath))
+                            {
+                                Directory.CreateDirectory(filePath);
+                            }
+
+                            filePath = Path.Combine(rootPath + "/Images/" + entity.Id, formFile.FileName);
+
+                            using (var stream = System.IO.File.Create(filePath))
+                            {
+
+                                await formFile.CopyToAsync(stream);
+                            }
+                        }
+                    }
+                }
+                    
+
+                
+
                 return RedirectToAction(nameof(Index));
             }
             return View(board);
@@ -119,6 +204,34 @@ namespace SurfsUp.Controllers
             {
                 return NotFound();
             }
+
+            string rootPath = _webHostEnvironment.WebRootPath;
+            var path = Path.Combine(rootPath + "/Images/" + id);
+            if (Directory.Exists(path))
+            {
+                string[] filePaths = Directory.GetFiles(path);
+
+                List<IFormFile> files = new List<IFormFile>();  // List that will hold the files and subfiles in path
+                foreach (string filePath in filePaths)
+                {
+                    using (var stream = new System.IO.FileStream(filePath, System.IO.FileMode.Open))
+                    {
+                        IFormFile file = new FormFile(
+                        baseStream: stream,
+                        baseStreamOffset: 0,
+                        length: new System.IO.FileInfo(filePath).Length,
+                        name: "formFile",
+                        fileName: System.IO.Path.GetFileName(filePath));
+                        files.Add(file);
+                    }
+                }
+
+                board.Attachments = files;
+            }
+
+
+
+
             return View(board);
         }
 
@@ -127,7 +240,7 @@ namespace SurfsUp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Length,Width,Thickness,Volume,Price,Equipment")] Board board)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Length,Width,Thickness,Volume,Price,Equipment,Attachments")] Board board)
         {
             if (id != board.Id)
             {
@@ -140,6 +253,32 @@ namespace SurfsUp.Controllers
                 {
                     _context.Update(board);
                     await _context.SaveChangesAsync();
+
+                    if(board.Attachments != null)
+                    {
+                        string rootPath = _webHostEnvironment.WebRootPath;
+                        foreach (var formFile in board.Attachments)
+                        {
+                            if (formFile.Length > 0)
+                            {
+                                var filePath = Path.Combine(rootPath + "/Images/" + id);
+
+                                if (!Directory.Exists(filePath))
+                                {
+                                    Directory.CreateDirectory(filePath);
+                                }
+
+                                filePath = Path.Combine(rootPath + "/Images/" + id, formFile.FileName);
+
+                                using (var stream = System.IO.File.Create(filePath))
+                                {
+                                    await formFile.CopyToAsync(stream);
+                                }
+                            }
+                        }
+                    }
+                    
+
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -172,6 +311,31 @@ namespace SurfsUp.Controllers
                 return NotFound();
             }
 
+            string rootPath = _webHostEnvironment.WebRootPath;
+            var path = Path.Combine(rootPath + "/Images/" + id);
+            if (Directory.Exists(path))
+            {
+                string[] filePaths = Directory.GetFiles(path);
+
+                List<IFormFile> files = new List<IFormFile>();  // List that will hold the files and subfiles in path
+                foreach (string filePath in filePaths)
+                {
+                    using (var stream = new System.IO.FileStream(filePath, System.IO.FileMode.Open))
+                    {
+                        IFormFile file = new FormFile(
+                        baseStream: stream,
+                        baseStreamOffset: 0,
+                        length: new System.IO.FileInfo(filePath).Length,
+                        name: "formFile",
+                        fileName: System.IO.Path.GetFileName(filePath));
+                        files.Add(file);
+                    }
+                }
+
+                board.Attachments = files;
+            }
+
+
             return View(board);
         }
 
@@ -187,16 +351,42 @@ namespace SurfsUp.Controllers
             var board = await _context.Board.FindAsync(id);
             if (board != null)
             {
+
                 _context.Board.Remove(board);
             }
             
             await _context.SaveChangesAsync();
+
+            string rootPath = _webHostEnvironment.WebRootPath;
+
+
+            var filePath = Path.Combine(rootPath + "/Images/" + id);
+
+            if (Directory.Exists(filePath))
+            {
+                Directory.Delete(filePath, true);
+            }
+
             return RedirectToAction(nameof(Index));
         }
 
         private bool BoardExists(int id)
         {
           return (_context.Board?.Any(e => e.Id == id)).GetValueOrDefault();
+        }
+
+        //POST: Boards/Edit/DeleteImg
+        [HttpPost, ActionName("DeleteImgConfirmed")]
+        [ValidateAntiForgeryToken]
+        public IActionResult DeleteImgConfirmed(string fileName, int id)
+        {
+            string rootPath = _webHostEnvironment.WebRootPath;
+
+            var filePath = Path.Combine(rootPath + "/Images/" + id, fileName);
+
+            System.IO.File.Delete(filePath);
+
+            return RedirectToAction(nameof(Edit), new { id = id });
         }
     }
 }
