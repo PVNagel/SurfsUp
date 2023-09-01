@@ -25,7 +25,7 @@ namespace SurfsUp.Models
         [RegularExpression(@"^[1-9][0-9]*(?:,[0-9]+)?$", ErrorMessage = "Du må kun bruge tal og 1 enkelt komma.")]
         public string? Volume { get; set; }
         [Required]
-        public Type Type { get; set; }
+        public TypeEnum Type { get; set; }
         [Required]
         [DataType (DataType.Currency)]
         public decimal Price { get; set; }
@@ -34,7 +34,7 @@ namespace SurfsUp.Models
         [NotMapped]
         public IList<IFormFile>? Attachments { get; set; }
     }
-    public enum Type
+    public enum TypeEnum
     {
         Shortboard,
         Funboard,

@@ -37,6 +37,12 @@
                 <input asp-for="Volume" class="form-control" />
                 <span asp-validation-for="Volume" class="text-danger"></span>
             </div>
+            <div class="form-groupe">
+                <label asp-for="Type" class="control-label"></label>
+                <select asp-for="Type" asp-items="Html.GetEnumSelectList<TypeEnum>()">
+                    <option selected="selected" value="">Vælg type</option>
+                </select>
+            </div>
             <div class="form-group">
                 <label asp-for="Price" class="control-label"></label>
                 <input name="Price" class="form-control" type="text" id="createPrice" />

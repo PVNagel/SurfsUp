@@ -1,11 +1,13 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.Drawing.Printing;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using SurfsUp.Data;
 using SurfsUp.Models;
@@ -24,19 +26,41 @@ namespace SurfsUp.Controllers
         }
 
         // GET: Boards
-        public async Task<IActionResult> Index(string searchString, string selectedProperty)
+        public async Task<IActionResult> Index(string sortOrder, string currentFilter, string searchString, string selectedProperty, int? pageNumber)
         {
             if (!string.IsNullOrEmpty(searchString))
             {
                 searchString = searchString.ToLower();
             }
+            ViewData["CurrentSort"] = sortOrder;
+            ViewData["NameSortParm"] = string.IsNullOrEmpty(sortOrder) ? "Name_Desc" : "";
+            ViewData["LengthSortParm"] = sortOrder == "Length" ? "Length_Desc" : "Length";
+            ViewData["WidthSortParm"] = sortOrder == "Width" ? "Width_Desc" : "Width";
+            ViewData["ThicknessSortParm"] = sortOrder == "Thickness" ? "Thickness_Desc" : "Thickness";
+            ViewData["VolumeSortParm"] = sortOrder == "Volume" ? "Volume_Desc" : "Volume";
+            ViewData["TypeSortParm"] = sortOrder == "Type" ? "Type_Desc" : "Type";
+            ViewData["PriceSortParm"] = sortOrder == "Price" ? "Price_Desc" : "Price";
+
+            if (searchString != null)
+            {
+                pageNumber = 1;
+            }
+            else
+            {
+                searchString = currentFilter;
+            }
+
             var modelProperties = typeof(Board).GetProperties(); 
             ViewBag.PropertyList = new SelectList(modelProperties, "Name", "Name");
             
             ViewData["CurrentFilter"] = searchString;
 
-            var boards = from b in _context.Board
-                         select b;
+            var boards = from b in _context.Board select b;
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                boards = boards.Where(b => b.Name.Contains(searchString)
+                                       || b.Length.Contains(searchString));
+            }
 
             if (selectedProperty != null)
             {
@@ -68,7 +92,7 @@ namespace SurfsUp.Controllers
             View(searchBoards) :
             Problem("Entity set 'SurfsUpContext.Board'  is null.");
             }
-
+            
             if (!String.IsNullOrEmpty(searchString))
             {
                 var searchBoards = boards.ToList();
@@ -84,9 +108,55 @@ namespace SurfsUp.Controllers
                 return View(result);
             }
 
-            return
-                        View(await boards.AsNoTracking().ToListAsync());
+            switch (sortOrder)
+            {
+                case "Name_Desc":
+                    boards = boards.OrderByDescending(s => s.Name);
+                    break;
+                case "Length":
+                    boards = boards.OrderBy(s => s.Length);
+                    break;
+                case "Length_Desc":
+                    boards = boards.OrderByDescending(s => s.Length);
+                    break;
+                case "Width":
+                    boards = boards.OrderBy(s => s.Width);
+                    break;
+                case "Width_Desc":
+                    boards = boards.OrderByDescending(s => s.Width);
+                    break;
+                case "Thickness":
+                    boards = boards.OrderBy(s => s.Thickness);
+                    break;
+                case "Thickness_Desc":
+                    boards = boards.OrderByDescending(s => s.Thickness);
+                    break;
+                case "Volume":
+                    boards = boards.OrderBy(s => s.Volume);
+                    break;
+                case "Volume_Desc":
+                    boards = boards.OrderByDescending(s => s.Volume);
+                    break;
+                case "Type":
+                    boards = boards.OrderBy(s => s.Type);
+                    break;
+                case "Type_Desc":
+                    boards = boards.OrderByDescending(s => s.Type);
+                    break;
+                case "Price":
+                    boards = boards.OrderBy(s => s.Price);
+                    break;
+                case "Price_Desc":
+                    boards = boards.OrderByDescending(s => s.Price);
+                    break;
+                default:
+                    boards = boards.OrderBy(s => s.Name);
+                    break;
+            }
 
+            int pageSize = 5;
+
+            return View(await PaginatedList<Board>.CreateAsync(boards.AsNoTracking(), pageNumber ?? 1, pageSize));
         }
 
         // GET: Boards/Details/5
@@ -141,7 +211,7 @@ namespace SurfsUp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Length,Width,Thickness,Volume,Price,Equipment,Attachments")] Board board)
+        public async Task<IActionResult> Create([Bind("Id,Name,Length,Width,Thickness,Volume,Type,Price,Equipment,Attachments")] Board board)
         {
             if (ModelState.IsValid)
             {
@@ -174,8 +244,7 @@ namespace SurfsUp.Controllers
                 }
                     
 
-                
-
+              
                 return RedirectToAction(nameof(Index));
             }
             return View(board);
@@ -230,7 +299,7 @@ namespace SurfsUp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Length,Width,Thickness,Volume,Price,Equipment,Attachments")] Board board)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Length,Width,Thickness,Volume,Type,Price,Equipment,Attachments")] Board board)
         {
             if (id != board.Id)
             {
