@@ -11,11 +11,28 @@
     <a asp-action="Create">Create New</a>
 </p>
 
+<form asp-action="Index" method="get" >
+    <input type="text" name="searchString" value="@ViewData["CurrentFilter"]" />
+    <input type="submit" value="Search"/>
+
+    <label for="selectedProperty">Select a Property</label>
+    <select id="selectedProperty" name="selectedProperty" class="form-control">
+        <option value="">-- Select a property --</option>
+        @foreach (var property in (SelectList)ViewBag.PropertyList)
+        {
+            <option value="@property.Value">@property.Text</option>
+        }
+    </select>
+
+    <a asp-action="Index"> Reset </a>
+</form>
+
+
+
 <table class="table">
     <thead>
         <tr>
             <th>
-
                 <a asp-action="Index" asp-route-sortOrder="@ViewData["NameSortParm"]">Name</a>
             </th>
             <th>
@@ -57,6 +74,18 @@
                 @Html.DisplayFor(modelItem => item.Thickness)
             </td>
             <td>
+                @Html.DisplayFor(modelItem => item.Length)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Width)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Thickness)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Volume)
+            </td>
+            <td>
                 @Html.DisplayFor(modelItem => item.Type)
             </td>
               <td>
@@ -65,7 +94,7 @@
             <td>
                 @Html.DisplayFor(modelItem => item.Price)
             </td>
-               <td>
+            <td>
                 @Html.DisplayFor(modelItem => item.Equipment)
             </td>
             
