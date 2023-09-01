@@ -15,17 +15,27 @@
     <thead>
         <tr>
             <th>
-                Name
+
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["NameSortParm"]">Name</a>
+            </th>
+            <th>
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["LengthSortParm"]"> Length</a>
+            </th>
+            <th>
+                Width
             </th>
             <th>
                 Type
             </th>
             <th>
-                Price
+               Volume
             </th>
-         
-
-            <th></th>
+            <th>
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["PriceSortParm"]"> Price</a>
+            </th>
+            <th>
+               Equipment
+            </th>
         </tr>
     </thead>
     <tbody>
@@ -34,13 +44,24 @@
             <td>
                 @Html.DisplayFor(modelItem => item.Name)
             </td>
+              <td>
+                @Html.DisplayFor(modelItem => item.Length)
+            </td>
+              <td>
+                @Html.DisplayFor(modelItem => item.Width)
+            </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Type)
+            </td>
+              <td>
+                @Html.DisplayFor(modelItem => item.Volume)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Price)
             </td>
-             
+               <td>
+                @Html.DisplayFor(modelItem => item.Equipment)
+            </td>
             
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
