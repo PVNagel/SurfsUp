@@ -31,9 +31,12 @@ namespace SurfsUp.Controllers
 
             ViewData["CurrentSort"] = sortOrder;
             ViewData["NameSortParm"] = string.IsNullOrEmpty(sortOrder) ? "Name_Desc" : "";
-            ViewData["PriceSortParm"] = sortOrder == "Price" ? "Price_Desc" : "Price";
             ViewData["LengthSortParm"] = sortOrder == "Length" ? "Length_Desc" : "Length";
+            ViewData["WidthSortParm"] = sortOrder == "Width" ? "Width_Desc" : "Width";
+            ViewData["ThicknessSortParm"] = sortOrder == "Thickness" ? "Thickness_Desc" : "Thickness";
+            ViewData["VolumeSortParm"] = sortOrder == "Volume" ? "Volume_Desc" : "Volume";
             ViewData["TypeSortParm"] = sortOrder == "Type" ? "Type_Desc" : "Type";
+            ViewData["PriceSortParm"] = sortOrder == "Price" ? "Price_Desc" : "Price";
 
             if (searchString != null)
             {
@@ -63,23 +66,41 @@ namespace SurfsUp.Controllers
                 case "Name_Desc":
                     boards = boards.OrderByDescending(s => s.Name);
                     break;
-                case "Price":
-                    boards = boards.OrderBy(s => s.Price);
-                    break;
-                case "Price_desc":
-                    boards = boards.OrderByDescending(s => s.Price);
-                    break;
                 case "Length":
                     boards = boards.OrderBy(s => s.Length);
                     break;
-                case "Length_desc":
+                case "Length_Desc":
                     boards = boards.OrderByDescending(s => s.Length);
+                    break;
+                case "Width":
+                    boards = boards.OrderBy(s => s.Width);
+                    break;
+                case "Width_Desc":
+                    boards = boards.OrderByDescending(s => s.Width);
+                    break;
+                case "Thickness":
+                    boards = boards.OrderBy(s => s.Thickness);
+                    break;
+                case "Thickness_Desc":
+                    boards = boards.OrderByDescending(s => s.Thickness);
+                    break;
+                case "Volume":
+                    boards = boards.OrderBy(s => s.Volume);
+                    break;
+                case "Volume_Desc":
+                    boards = boards.OrderByDescending(s => s.Volume);
                     break;
                 case "Type":
                     boards = boards.OrderBy(s => s.Type);
                     break;
-                case "Type_desc":
+                case "Type_Desc":
                     boards = boards.OrderByDescending(s => s.Type);
+                    break;
+                case "Price":
+                    boards = boards.OrderBy(s => s.Price);
+                    break;
+                case "Price_Desc":
+                    boards = boards.OrderByDescending(s => s.Price);
                     break;
                 default:
                     boards = boards.OrderBy(s => s.Name);
