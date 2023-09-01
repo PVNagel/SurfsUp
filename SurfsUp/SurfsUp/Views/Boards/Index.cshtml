@@ -22,13 +22,16 @@
                 <a asp-action="Index" asp-route-sortOrder="@ViewData["LengthSortParm"]"> Length</a>
             </th>
             <th>
-                Width
+                 <a asp-action="Index" asp-route-sortOrder="@ViewData["WidthSortParm"]"> Width</a>
             </th>
             <th>
-                Type
+                 <a asp-action="Index" asp-route-sortOrder="@ViewData["ThicknessSortParm"]"> Thickness</a>
             </th>
             <th>
-               Volume
+                 <a asp-action="Index" asp-route-sortOrder="@ViewData["TypeSortParm"]"> Type</a>
+            </th>
+            <th>
+               <a asp-action="Index" asp-route-sortOrder="@ViewData["VolumeSortParm"]"> Volume</a>
             </th>
             <th>
                 <a asp-action="Index" asp-route-sortOrder="@ViewData["PriceSortParm"]"> Price</a>
@@ -49,6 +52,9 @@
             </td>
               <td>
                 @Html.DisplayFor(modelItem => item.Width)
+            </td>
+             <td>
+                @Html.DisplayFor(modelItem => item.Thickness)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Type)
