@@ -25,6 +25,7 @@ namespace SurfsUp.Controllers
         }
 
         // GET: Boards
+
         public async Task<IActionResult> Index(string sortOrder,string currentFilter, string searchString, int? pageNumber)
         {
 
@@ -43,12 +44,58 @@ namespace SurfsUp.Controllers
 
             int pageSize = 5;
 
-            return View(await PaginatedList<Board>.CreateAsync(boards.AsNoTracking(), pageNumber ?? 1, pageSize));
+          
 
 
             //return _context.Board != null ? 
             //          View(await _context.Board.ToListAsync()) :
             //          Problem("Entity set 'SurfsUpContext.Board'  is null.");
+
+
+        public async Task<IActionResult> Index(string sortOrder)
+        
+        {
+
+            ViewData["NameSortParm"] = string.IsNullOrEmpty(sortOrder) ? "Name_Desc" : "";
+            ViewData["PriceSortParm"] = sortOrder == "Price" ? "Price_Desc" : "Price";
+            ViewData["LengthSortParm"] = sortOrder == "Length" ? "Length_Desc" : "Length";
+            ViewData["TypeSortParm"] = sortOrder == "Type" ? "Type_Desc" : "Type";
+
+            var boards = from b in _context.Board 
+                         select b;
+
+            switch (sortOrder)
+            {
+                case "Name_Desc":
+                    boards = boards.OrderByDescending(b => b.Name);
+                    break;
+                case "Price":
+                    boards = boards.OrderBy(b => b.Price);
+                    break;
+                case "Price_desc":
+                    boards = boards.OrderByDescending(b => b.Price);
+                    break;
+                case "Length":
+                    boards = boards.OrderBy(b => b.Length);
+                    break;
+                case "Length_desc":
+                    boards = boards.OrderByDescending(b => b.Length);
+                    break;
+                case "Type":
+                    boards = boards.OrderBy(b => b.Type);
+                    break;
+                case "Type_desc":
+                    boards = boards.OrderByDescending(b => b.Type);
+                    break;
+                default:
+                    boards = boards.OrderBy(b => b.Name);
+                    break;
+
+            }
+
+            return View(await PaginatedList<Board>.CreateAsync(boards.AsNoTracking(), pageNumber ?? 1, pageSize));
+            //return View(await boards.AsNoTracking().ToListAsync());
+                        
 
         }
 
