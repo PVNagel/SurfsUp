@@ -16,32 +16,26 @@
         <tr>
             <th>
 
-                <a asp-action="Index" asp-route-sortOrder="@ViewData["NameSortParm"]">@Html.DisplayNameFor(model => model.Name)</a>"
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["NameSortParm"]">Name</a>
             </th>
             <th>
-                <a asp-action="Index" asp-route-sortOrder="@ViewData["LengthSortParm"]"> @Html.DisplayNameFor(model => model.Length)</a>
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["LengthSortParm"]"> Length</a>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Width)
-
+                Width
             </th>
             <th>
                 Type
             </th>
             <th>
-
-                @Html.DisplayNameFor(model => model.Volume)
+               Volume
             </th>
             <th>
-                <a asp-action="Index" asp-route-sortOrder="@ViewData["PriceSortParm"]"> @Html.DisplayNameFor(model => model.Price)</a>
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["PriceSortParm"]"> Price</a>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Equipment)
-
+               Equipment
             </th>
-         
-
-            <th></th>
         </tr>
     </thead>
     <tbody>
@@ -50,13 +44,24 @@
             <td>
                 @Html.DisplayFor(modelItem => item.Name)
             </td>
+              <td>
+                @Html.DisplayFor(modelItem => item.Length)
+            </td>
+              <td>
+                @Html.DisplayFor(modelItem => item.Width)
+            </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Type)
+            </td>
+              <td>
+                @Html.DisplayFor(modelItem => item.Volume)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Price)
             </td>
-             
+               <td>
+                @Html.DisplayFor(modelItem => item.Equipment)
+            </td>
             
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
