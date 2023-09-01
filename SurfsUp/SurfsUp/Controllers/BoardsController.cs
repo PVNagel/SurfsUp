@@ -83,7 +83,7 @@ namespace SurfsUp.Controllers
                     }
                 }
 
-                var paginatedList = new PaginatedList<Board>(searchBoards, searchBoards.Count(), pageNumber ?? 1, pageSize);
+                var paginatedList = await PaginatedList<Board>.CreateAsync(searchBoards, pageNumber ?? 1, pageSize);
                 return View(paginatedList);
             }
             
@@ -99,7 +99,7 @@ namespace SurfsUp.Controllers
                                            String.IsNullOrEmpty(b.Equipment) == false && b.Equipment.ToLower().Contains(searchString) ||
                                            b.Price.ToString().Contains(searchString));
 
-                var paginatedList = new PaginatedList<Board>(searchBoards, searchBoards.Count(), pageNumber ?? 1, pageSize);
+                var paginatedList = await PaginatedList<Board>.CreateAsync(result.ToList(), pageNumber ?? 1, pageSize);
                 return View(paginatedList);
             }
 
