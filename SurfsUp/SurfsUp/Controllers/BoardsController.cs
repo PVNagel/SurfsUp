@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -23,11 +24,69 @@ namespace SurfsUp.Controllers
         }
 
         // GET: Boards
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchString, string selectedProperty)
         {
-              return _context.Board != null ? 
-                          View(await _context.Board.ToListAsync()) :
-                          Problem("Entity set 'SurfsUpContext.Board'  is null.");
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                searchString = searchString.ToLower();
+            }
+            var modelProperties = typeof(Board).GetProperties(); 
+            ViewBag.PropertyList = new SelectList(modelProperties, "Name", "Name");
+            
+            ViewData["CurrentFilter"] = searchString;
+
+            var boards = from b in _context.Board
+                         select b;
+
+            if (selectedProperty != null)
+            {
+                var searchBoards = new List<Board>();
+                foreach (Board board in boards)
+                {
+                    PropertyInfo propertyInfo = board.GetType().GetProperty(selectedProperty);
+                    if(propertyInfo != null)
+                    {
+                        object propertyValue = propertyInfo.GetValue(board);
+                        if (propertyValue != null)
+                        {
+                            if (!String.IsNullOrEmpty(searchString))
+                            {
+                                if (propertyValue.ToString().ToLower().Contains(searchString))
+                                {
+                                    searchBoards.Add(board);
+                                }
+                            }
+                            else
+                            {
+                                searchBoards.Add(board);
+                            }
+                        }
+                    }
+                }
+
+                return searchBoards != null ?
+            View(searchBoards) :
+            Problem("Entity set 'SurfsUpContext.Board'  is null.");
+            }
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                var searchBoards = boards.ToList();
+                var result = searchBoards.Where(b => b.Name.ToLower().Contains(searchString) ||
+                                           b.Length.Contains(searchString) ||
+                                           b.Width.Contains(searchString) ||
+                                           b.Thickness.Contains(searchString) ||
+                                           b.Volume.Contains(searchString) ||
+                                           b.Type.ToString().ToLower().Contains(searchString) ||
+                                           String.IsNullOrEmpty(b.Equipment) == false && b.Equipment.ToLower().Contains(searchString) ||
+                                           b.Price.ToString().Contains(searchString));
+
+                return View(result);
+            }
+
+            return
+                        View(await boards.AsNoTracking().ToListAsync());
+
         }
 
         // GET: Boards/Details/5
