@@ -28,6 +28,7 @@ namespace SurfsUp.Controllers
         // GET: Boards
         public async Task<IActionResult> Index(string sortOrder, string currentFilter, string searchString, string selectedProperty, int? pageNumber)
         {
+            int pageSize = 5;
             if (!string.IsNullOrEmpty(searchString))
             {
                 searchString = searchString.ToLower();
@@ -56,12 +57,6 @@ namespace SurfsUp.Controllers
             ViewData["CurrentFilter"] = searchString;
 
             var boards = from b in _context.Board select b;
-            if (!String.IsNullOrEmpty(searchString))
-            {
-                boards = boards.Where(b => b.Name.Contains(searchString)
-                                       || b.Length.Contains(searchString));
-            }
-
             if (selectedProperty != null)
             {
                 var searchBoards = new List<Board>();
@@ -88,9 +83,8 @@ namespace SurfsUp.Controllers
                     }
                 }
 
-                return searchBoards != null ?
-            View(searchBoards) :
-            Problem("Entity set 'SurfsUpContext.Board'  is null.");
+                var paginatedList = new PaginatedList<Board>(searchBoards, searchBoards.Count(), pageNumber ?? 1, pageSize);
+                return View(paginatedList);
             }
             
             if (!String.IsNullOrEmpty(searchString))
@@ -105,7 +99,8 @@ namespace SurfsUp.Controllers
                                            String.IsNullOrEmpty(b.Equipment) == false && b.Equipment.ToLower().Contains(searchString) ||
                                            b.Price.ToString().Contains(searchString));
 
-                return View(result);
+                var paginatedList = new PaginatedList<Board>(searchBoards, searchBoards.Count(), pageNumber ?? 1, pageSize);
+                return View(paginatedList);
             }
 
             switch (sortOrder)
@@ -154,9 +149,7 @@ namespace SurfsUp.Controllers
                     break;
             }
 
-            int pageSize = 5;
-
-            return View(await PaginatedList<Board>.CreateAsync(boards.AsNoTracking(), pageNumber ?? 1, pageSize));
+            return View(await PaginatedList<Board>.CreateAsync(await boards.AsNoTracking().ToListAsync(), pageNumber ?? 1, pageSize));
         }
 
         // GET: Boards/Details/5
