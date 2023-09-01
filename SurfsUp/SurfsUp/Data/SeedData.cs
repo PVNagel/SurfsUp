@@ -33,7 +33,7 @@ namespace SurfsUp.Data
                         Width = "21",
                         Thickness = "2,75",
                         Volume = "38,8",
-                        Type = Models.Type.Shortboard,
+                        Type = Models.TypeEnum.Shortboard,
                         Price = 565,
                         Equipment = null
                     }).Entity);
@@ -46,7 +46,7 @@ namespace SurfsUp.Data
         Width = "21,75",
         Thickness = "2,75",
         Volume = "44,16",
-        Type = Models.Type.Funboard,
+        Type = Models.TypeEnum.Funboard,
         Price = 685,
         Equipment = null
     }).Entity);
@@ -59,7 +59,7 @@ namespace SurfsUp.Data
         Width = "21,85",
         Thickness = "2,9",
         Volume = "43,22",
-        Type = Models.Type.Funboard,
+        Type = Models.TypeEnum.Funboard,
         Price = 695,
         Equipment = null
     }).Entity);
@@ -73,7 +73,7 @@ namespace SurfsUp.Data
         Width = "20,75",
         Thickness = "2,3",
         Volume = "29,39",
-        Type = Models.Type.Fish,
+        Type = Models.TypeEnum.Fish,
         Price = 645,
         Equipment = null
     }).Entity);
@@ -86,7 +86,7 @@ namespace SurfsUp.Data
         Width = "22,8",
         Thickness = "2,8",
         Volume = "65,4",
-        Type = Models.Type.Longboard,
+        Type = Models.TypeEnum.Longboard,
         Price = 895,
         Equipment = null
     }).Entity);
@@ -99,7 +99,7 @@ namespace SurfsUp.Data
         Width = "21",
         Thickness = "2,5",
         Volume = "33,7",
-        Type = Models.Type.Shortboard,
+        Type = Models.TypeEnum.Shortboard,
         Price = 645,
         Equipment = null
     }).Entity);
@@ -112,7 +112,7 @@ namespace SurfsUp.Data
         Width = "19,4",
         Thickness = "3",
         Volume = "80",
-        Type = Models.Type.Longboard,
+        Type = Models.TypeEnum.Longboard,
         Price = 1025,
         Equipment = null
     }).Entity);
@@ -125,7 +125,7 @@ namespace SurfsUp.Data
         Width = "30",
         Thickness = "6",
         Volume = "301",
-        Type = Models.Type.SUP,
+        Type = Models.TypeEnum.SUP,
         Price = 854,
         Equipment = "Paddle"
     }).Entity);
@@ -138,7 +138,7 @@ namespace SurfsUp.Data
         Width = "32",
         Thickness = "6",
         Volume = "270",
-        Type = Models.Type.SUP,
+        Type = Models.TypeEnum.SUP,
         Price = 611,
         Equipment = "Fin, Paddle, Pump, Leash"
     }).Entity);
@@ -151,7 +151,7 @@ namespace SurfsUp.Data
         Width = "25",
         Thickness = "6",
         Volume = "330",
-        Type = Models.Type.SUP,
+        Type = Models.TypeEnum.SUP,
         Price = 1304,
         Equipment = "Fin, Paddle, Pump, Leash"
     }).Entity);
