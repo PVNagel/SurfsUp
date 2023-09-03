@@ -29,10 +29,10 @@ namespace SurfsUp.Data
                     new Board
                     {
                         Name = "The Minilog",
-                        Length = "6",
-                        Width = "21",
-                        Thickness = "2,75",
-                        Volume = "38,8",
+                        Length = 6,
+                        Width = 21,
+                        Thickness = 2.75,
+                        Volume = 38.8,
                         Type = Models.TypeEnum.Shortboard,
                         Price = 565,
                         Equipment = null
@@ -42,10 +42,10 @@ namespace SurfsUp.Data
     new Board
     {
         Name = "The Wide Glider",
-        Length = "7,1",
-        Width = "21,75",
-        Thickness = "2,75",
-        Volume = "44,16",
+        Length = 7.1,
+        Width = 21.75,
+        Thickness = 2.75,
+        Volume = 44.16,
         Type = Models.TypeEnum.Funboard,
         Price = 685,
         Equipment = null
@@ -55,10 +55,10 @@ namespace SurfsUp.Data
     new Board
     {
         Name = "The Golden Ratio",
-        Length = "6,3",
-        Width = "21,85",
-        Thickness = "2,9",
-        Volume = "43,22",
+        Length = 6.3,
+        Width = 21.85,
+        Thickness = 2.9,
+        Volume = 43.22,
         Type = Models.TypeEnum.Funboard,
         Price = 695,
         Equipment = null
@@ -69,10 +69,10 @@ namespace SurfsUp.Data
     new Board
     {
         Name = "Mahi Mahi",
-        Length = "5,4",
-        Width = "20,75",
-        Thickness = "2,3",
-        Volume = "29,39",
+        Length = 5.4,
+        Width = 20.75,
+        Thickness = 2.3,
+        Volume = 29.39,
         Type = Models.TypeEnum.Fish,
         Price = 645,
         Equipment = null
@@ -82,10 +82,10 @@ namespace SurfsUp.Data
     new Board
     {
         Name = "The Emerald Glider",
-        Length = "9,2",
-        Width = "22,8",
-        Thickness = "2,8",
-        Volume = "65,4",
+        Length = 9.2,
+        Width = 22.8,
+        Thickness = 2.8,
+        Volume = 65.4,
         Type = Models.TypeEnum.Longboard,
         Price = 895,
         Equipment = null
@@ -95,10 +95,10 @@ namespace SurfsUp.Data
     new Board
     {
         Name = "The Bomb",
-        Length = "5,5",
-        Width = "21",
-        Thickness = "2,5",
-        Volume = "33,7",
+        Length = 5.5,
+        Width = 21,
+        Thickness = 2.5,
+        Volume = 33.7,
         Type = Models.TypeEnum.Shortboard,
         Price = 645,
         Equipment = null
@@ -108,10 +108,10 @@ namespace SurfsUp.Data
     new Board
     {
         Name = "Walden Magic",
-        Length = "9,6",
-        Width = "19,4",
-        Thickness = "3",
-        Volume = "80",
+        Length = 9.6,
+        Width = 19.4,
+        Thickness = 3,
+        Volume = 80,
         Type = Models.TypeEnum.Longboard,
         Price = 1025,
         Equipment = null
@@ -121,10 +121,10 @@ namespace SurfsUp.Data
     new Board
     {
         Name = "Naish One",
-        Length = "12,6",
-        Width = "30",
-        Thickness = "6",
-        Volume = "301",
+        Length = 12.6,
+        Width = 30,
+        Thickness = 6,
+        Volume = 301,
         Type = Models.TypeEnum.SUP,
         Price = 854,
         Equipment = "Paddle"
@@ -134,10 +134,10 @@ namespace SurfsUp.Data
     new Board
     {
         Name = "Six Tourer",
-        Length = "11,6",
-        Width = "32",
-        Thickness = "6",
-        Volume = "270",
+        Length = 11.6,
+        Width = 32,
+        Thickness = 6,
+        Volume = 270,
         Type = Models.TypeEnum.SUP,
         Price = 611,
         Equipment = "Fin, Paddle, Pump, Leash"
@@ -147,10 +147,10 @@ namespace SurfsUp.Data
     new Board
     {
         Name = "Naish Maliko",
-        Length = "14",
-        Width = "25",
-        Thickness = "6",
-        Volume = "330",
+        Length = 14,
+        Width = 25,
+        Thickness = 6,
+        Volume = 330,
         Type = Models.TypeEnum.SUP,
         Price = 1304,
         Equipment = "Fin, Paddle, Pump, Leash"

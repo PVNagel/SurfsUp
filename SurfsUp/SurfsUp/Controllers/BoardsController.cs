@@ -83,7 +83,7 @@ namespace SurfsUp.Controllers
                     }
                 }
 
-                var paginatedList = new PaginatedList<Board>(searchBoards, searchBoards.Count(), pageNumber ?? 1, pageSize);
+                var paginatedList = await PaginatedList<Board>.CreateAsync(searchBoards, pageNumber ?? 1, pageSize);
                 return View(paginatedList);
             }
             
@@ -91,15 +91,15 @@ namespace SurfsUp.Controllers
             {
                 var searchBoards = boards.ToList();
                 var result = searchBoards.Where(b => b.Name.ToLower().Contains(searchString) ||
-                                           b.Length.Contains(searchString) ||
-                                           b.Width.Contains(searchString) ||
-                                           b.Thickness.Contains(searchString) ||
-                                           b.Volume.Contains(searchString) ||
+                                           b.Length.ToString().Contains(searchString) ||
+                                           b.Width.ToString().Contains(searchString) ||
+                                           b.Thickness.ToString().Contains(searchString) ||
+                                           b.Volume.ToString().Contains(searchString) ||
                                            b.Type.ToString().ToLower().Contains(searchString) ||
                                            String.IsNullOrEmpty(b.Equipment) == false && b.Equipment.ToLower().Contains(searchString) ||
                                            b.Price.ToString().Contains(searchString));
 
-                var paginatedList = new PaginatedList<Board>(searchBoards, searchBoards.Count(), pageNumber ?? 1, pageSize);
+                var paginatedList = await PaginatedList<Board>.CreateAsync(result.ToList(), pageNumber ?? 1, pageSize);
                 return View(paginatedList);
             }
 
