@@ -1,8 +1,9 @@
-﻿@model IEnumerable<SurfsUp.Models.Board>
+﻿@model PaginatedList<SurfsUp.Models.Board>
+
 
 @{
     ViewData["Title"] = "Index";
-}
+} 
 
 <h1>Index</h1>
 
@@ -10,21 +11,59 @@
     <a asp-action="Create">Create New</a>
 </p>
 
+<form asp-action="Index" method="get" >
+    <div>
+        <input type="text" name="searchString" value="@ViewData["CurrentFilter"]" style="float: left; margin-right:10px" />
+        <input type="submit" value="Search"/>
+
+        <select id="selectedProperty" name="selectedProperty" class="form-control" style="height:30px; width:200px; float: left; font-size:12px; font-weight:500; text-align:center; border-color:black; margin-right:10px">
+            <option value="">-- Select a property --</option>
+            @foreach (var property in (SelectList)ViewBag.PropertyList)
+            {
+                <option value="@property.Value">@property.Text</option>
+            }
+        </select>
+
+        
+
+
+    </div>
+    <div>
+        <a asp-action="Index"> Reset </a>
+    </div>
+    
+    
+</form>
+
+
+
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Name)
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["NameSortParm"]">Name</a>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Type)
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["LengthSortParm"]"> Length</a>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Price)
+                 <a asp-action="Index" asp-route-sortOrder="@ViewData["WidthSortParm"]"> Width</a>
             </th>
-         
-
-            <th></th>
+            <th>
+                 <a asp-action="Index" asp-route-sortOrder="@ViewData["ThicknessSortParm"]"> Thickness</a>
+            </th>
+            <th>
+                 <a asp-action="Index" asp-route-sortOrder="@ViewData["TypeSortParm"]"> Type</a>
+            </th>
+            <th>
+               <a asp-action="Index" asp-route-sortOrder="@ViewData["VolumeSortParm"]"> Volume</a>
+            </th>
+            <th>
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["PriceSortParm"]"> Price</a>
+            </th>
+            <th>
+               Equipment
+            </th>
         </tr>
     </thead>
     <tbody>
@@ -34,12 +73,26 @@
                 @Html.DisplayFor(modelItem => item.Name)
             </td>
             <td>
+                @Html.DisplayFor(modelItem => item.Length)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Width)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Thickness)
+            </td>
+            <td>
                 @Html.DisplayFor(modelItem => item.Type)
+            </td>
+              <td>
+                @Html.DisplayFor(modelItem => item.Volume)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Price)
             </td>
-             
+            <td>
+                @Html.DisplayFor(modelItem => item.Equipment)
+            </td>
             
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
@@ -50,3 +103,24 @@
 }
     </tbody>
 </table>
+
+
+@{
+    var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+}
+
+<a asp-action="Index"
+   asp-route-sortOrder="@ViewData["CurrentSort"]"
+   asp-route-pageNumber="@(Model.PageIndex - 1)"
+   asp-route-currentFilter="@ViewData["CurrentFilter"]"
+   class="btn btn-default @prevDisabled">
+    Previous
+</a>
+<a asp-action="Index"
+   asp-route-sortOrder="@ViewData["CurrentSort"]"
+   asp-route-pageNumber="@(Model.PageIndex + 1)"
+   asp-route-currentFilter="@ViewData["CurrentFilter"]"
+   class="btn btn-default @nextDisabled">
+    Next
+</a>
