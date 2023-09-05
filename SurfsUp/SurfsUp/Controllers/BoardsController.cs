@@ -58,6 +58,7 @@ namespace SurfsUp.Controllers
 
             var boards = from b in _context.Board select b;
 
+
             switch (sortOrder)
             {
                 case "Name_Desc":
