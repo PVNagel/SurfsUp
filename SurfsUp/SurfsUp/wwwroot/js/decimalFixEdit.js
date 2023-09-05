@@ -1,12 +1,34 @@
-﻿var editPrice = document.getElementById("editPrice");
+﻿var dotControlElements = document.getElementsByClassName("dotControl");
 var editForm = document.getElementById("editForm");
-var editPriceError = document.getElementById("editPriceError");
+
 editForm.addEventListener("submit", function (event) {
     event.preventDefault();
-    var value = editPrice.value;
-    if (value.includes('.')) {
-        editPriceError.style.display = "block";
-        editPriceError.innerText = "Du må ikke bruge punktum som decimal seperator";
+    var resumeEvent = true;
+    for (var i = 0; i < dotControlElements.length; i++) {
+        var value = dotControlElements[i].value;
+        if (value.includes('.')) {
+            resumeEvent = false;
+            var parent = dotControlElements[i].parentElement;
+            var error = parent.querySelector('.dotControlError');
+            if (error == null) {
+                var error = document.createElement("span");
+                error.className = "text-danger dotControlError";
+                error.innerHTML = "Du må ikke bruge punktum som decimal seperator";
+                parent.appendChild(error);
+            }
+            else {
+                error.style.display = "display";
+            }
+        }
+        else {
+            var parent = dotControlElements[i].parentElement;
+            var error = parent.querySelector('.dotControlError');
+            if (error !== null) {
+                error.style.display = "none";
+            }
+        }
+    }
+    if (resumeEvent == false) {
         return false;
     }
     else {
@@ -14,3 +36,5 @@ editForm.addEventListener("submit", function (event) {
     }
 }
     , false);
+
+

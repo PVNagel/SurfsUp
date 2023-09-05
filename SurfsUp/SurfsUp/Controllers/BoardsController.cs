@@ -199,7 +199,7 @@ namespace SurfsUp.Controllers
         // GET: Boards/Create
         public IActionResult Create()
         {
-            return View();
+            return View(new Board());
         }
 
         // POST: Boards/Create

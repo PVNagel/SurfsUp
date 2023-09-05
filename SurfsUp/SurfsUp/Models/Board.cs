@@ -25,7 +25,7 @@ namespace SurfsUp.Models
         [Required]
         [RegularExpression(@"^[1-9][0-9]*(?:,[0-9]+)?$", ErrorMessage = "Du må kun bruge tal og 1 enkelt komma.")]
         public double? Volume { get; set; }
-        [Required]
+        [Required(ErrorMessage = "You need to select a type")]
         public TypeEnum Type { get; set; }
         [Required]
         [DataType (DataType.Currency)]
