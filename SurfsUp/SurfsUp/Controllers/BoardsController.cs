@@ -57,51 +57,7 @@ namespace SurfsUp.Controllers
             ViewData["CurrentFilter"] = searchString;
 
             var boards = from b in _context.Board select b;
-            if (selectedProperty != null)
-            {
-                var searchBoards = new List<Board>();
-                foreach (Board board in boards)
-                {
-                    PropertyInfo propertyInfo = board.GetType().GetProperty(selectedProperty);
-                    if(propertyInfo != null)
-                    {
-                        object propertyValue = propertyInfo.GetValue(board);
-                        if (propertyValue != null)
-                        {
-                            if (!String.IsNullOrEmpty(searchString))
-                            {
-                                if (propertyValue.ToString().ToLower().Contains(searchString))
-                                {
-                                    searchBoards.Add(board);
-                                }
-                            }
-                            else
-                            {
-                                searchBoards.Add(board);
-                            }
-                        }
-                    }
-                }
 
-                var paginatedList = await PaginatedList<Board>.CreateAsync(searchBoards, pageNumber ?? 1, pageSize);
-                return View(paginatedList);
-            }
-            
-            if (!String.IsNullOrEmpty(searchString))
-            {
-                var searchBoards = boards.ToList();
-                var result = searchBoards.Where(b => b.Name.ToLower().Contains(searchString) ||
-                                           b.Length.Contains(searchString) ||
-                                           b.Width.Contains(searchString) ||
-                                           b.Thickness.Contains(searchString) ||
-                                           b.Volume.Contains(searchString) ||
-                                           b.Type.ToString().ToLower().Contains(searchString) ||
-                                           String.IsNullOrEmpty(b.Equipment) == false && b.Equipment.ToLower().Contains(searchString) ||
-                                           b.Price.ToString().Contains(searchString));
-
-                var paginatedList = await PaginatedList<Board>.CreateAsync(result.ToList(), pageNumber ?? 1, pageSize);
-                return View(paginatedList);
-            }
 
             switch (sortOrder)
             {
@@ -148,6 +104,53 @@ namespace SurfsUp.Controllers
                     boards = boards.OrderBy(s => s.Name);
                     break;
             }
+
+            if (selectedProperty != null)
+            {
+                var searchBoards = new List<Board>();
+                foreach (Board board in boards)
+                {
+                    PropertyInfo propertyInfo = board.GetType().GetProperty(selectedProperty);
+                    if(propertyInfo != null)
+                    {
+                        object propertyValue = propertyInfo.GetValue(board);
+                        if (propertyValue != null)
+                        {
+                            if (!String.IsNullOrEmpty(searchString))
+                            {
+                                if (propertyValue.ToString().ToLower().Contains(searchString))
+                                {
+                                    searchBoards.Add(board);
+                                }
+                            }
+                            else
+                            {
+                                searchBoards.Add(board);
+                            }
+                        }
+                    }
+                }
+
+                var paginatedList = await PaginatedList<Board>.CreateAsync(searchBoards, pageNumber ?? 1, pageSize);
+                return View(paginatedList);
+            }
+            
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                var searchBoards = boards.ToList();
+                var result = searchBoards.Where(b => b.Name.ToLower().Contains(searchString) ||
+                                           b.Length.ToString().Contains(searchString) ||
+                                           b.Width.ToString().Contains(searchString) ||
+                                           b.Thickness.ToString().Contains(searchString) ||
+                                           b.Volume.ToString().Contains(searchString) ||
+                                           b.Type.ToString().ToLower().Contains(searchString) ||
+                                           String.IsNullOrEmpty(b.Equipment) == false && b.Equipment.ToLower().Contains(searchString) ||
+                                           b.Price.ToString().Contains(searchString));
+
+                var paginatedList = await PaginatedList<Board>.CreateAsync(result.ToList(), pageNumber ?? 1, pageSize);
+                return View(paginatedList);
+            }
+
 
             return View(await PaginatedList<Board>.CreateAsync(await boards.AsNoTracking().ToListAsync(), pageNumber ?? 1, pageSize));
         }

@@ -14,16 +14,16 @@ namespace SurfsUp.Models
         public string? Name { get; set; }
         [Required]
         [RegularExpression(@"^[1-9][0-9]*(?:,[0-9]+)?$", ErrorMessage = "Du må kun bruge tal og 1 enkelt komma.")]
-        public string? Length { get; set; }
+        public double? Length { get; set; }
         [Required]
         [RegularExpression(@"^[1-9][0-9]*(?:,[0-9]+)?$", ErrorMessage = "Du må kun bruge tal og 1 enkelt komma.")]
-        public string? Width { get; set; }
+        public double? Width { get; set; }
         [Required]
         [RegularExpression(@"^[1-9][0-9]*(?:,[0-9]+)?$", ErrorMessage = "Du må kun bruge tal og 1 enkelt komma.")]
-        public string? Thickness { get; set; }
+        public double? Thickness { get; set; }
         [Required]
         [RegularExpression(@"^[1-9][0-9]*(?:,[0-9]+)?$", ErrorMessage = "Du må kun bruge tal og 1 enkelt komma.")]
-        public string? Volume { get; set; }
+        public double? Volume { get; set; }
         [Required]
         public TypeEnum Type { get; set; }
         [Required]
