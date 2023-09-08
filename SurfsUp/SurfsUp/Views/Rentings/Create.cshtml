@@ -11,8 +11,8 @@
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Create">
-            <input hidden name="SurfsUpUserId" value="@ViewBag.UserId" />
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" name="SurfsUpUserId" value="@ViewBag.UserId" />
             <div class="form-group">
                 <label asp-for="BoardId" class="control-label"></label>
                 <input name="BoardId" value="@ViewData["BoardId"]" />
@@ -30,6 +30,7 @@
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
             </div>
+            
         </form>
     </div>
 </div>
