@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SurfsUp.Data;
 
@@ -11,9 +12,10 @@ using SurfsUp.Data;
 namespace SurfsUp.Migrations
 {
     [DbContext(typeof(SurfsUpContext))]
-    partial class SurfsUpContextModelSnapshot : ModelSnapshot
+    [Migration("20230908082112_RentingAdded")]
+    partial class RentingAdded
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -289,9 +291,11 @@ namespace SurfsUp.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BoardId");
+                    b.HasIndex("BoardId")
+                        .IsUnique();
 
-                    b.HasIndex("SurfsUpUserId");
+                    b.HasIndex("SurfsUpUserId")
+                        .IsUnique();
 
                     b.ToTable("Renting");
                 });
@@ -350,14 +354,14 @@ namespace SurfsUp.Migrations
             modelBuilder.Entity("SurfsUp.Models.Renting", b =>
                 {
                     b.HasOne("SurfsUp.Models.Board", "Board")
-                        .WithMany("Rentings")
-                        .HasForeignKey("BoardId")
+                        .WithOne("Renting")
+                        .HasForeignKey("SurfsUp.Models.Renting", "BoardId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("SurfsUp.Areas.Identity.Data.SurfsUpUser", "SurfsUpUser")
-                        .WithMany("Rentings")
-                        .HasForeignKey("SurfsUpUserId")
+                        .WithOne("Renting")
+                        .HasForeignKey("SurfsUp.Models.Renting", "SurfsUpUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -368,12 +372,14 @@ namespace SurfsUp.Migrations
 
             modelBuilder.Entity("SurfsUp.Areas.Identity.Data.SurfsUpUser", b =>
                 {
-                    b.Navigation("Rentings");
+                    b.Navigation("Renting")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("SurfsUp.Models.Board", b =>
                 {
-                    b.Navigation("Rentings");
+                    b.Navigation("Renting")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }
