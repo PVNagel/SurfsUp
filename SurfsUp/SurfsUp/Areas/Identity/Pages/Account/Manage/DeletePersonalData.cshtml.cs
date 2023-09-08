@@ -8,8 +8,12 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SurfsUp.Areas.Identity.Data;
+using SurfsUp.Controllers;
+using SurfsUp.Data;
+using SurfsUp.Models;
 
 namespace SurfsUp.Areas.Identity.Pages.Account.Manage
 {
@@ -18,15 +22,18 @@ namespace SurfsUp.Areas.Identity.Pages.Account.Manage
         private readonly UserManager<SurfsUpUser> _userManager;
         private readonly SignInManager<SurfsUpUser> _signInManager;
         private readonly ILogger<DeletePersonalDataModel> _logger;
+        private readonly SurfsUpContext _context;
 
         public DeletePersonalDataModel(
             UserManager<SurfsUpUser> userManager,
             SignInManager<SurfsUpUser> signInManager,
-            ILogger<DeletePersonalDataModel> logger)
+            ILogger<DeletePersonalDataModel> logger,
+            SurfsUpContext context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
+            _context = context;
         }
 
         /// <summary>
@@ -89,10 +96,14 @@ namespace SurfsUp.Areas.Identity.Pages.Account.Manage
 
             var result = await _userManager.DeleteAsync(user);
             var userId = await _userManager.GetUserIdAsync(user);
-
-            foreach(var rental in result.rentals)
+            
+            if(user.Rentings != null)
             {
-                rental.DeleteAsync(rental.id);
+
+                foreach(var rental in user.Rentings)
+                {
+                    _context.Remove(rental.Id);
+                }
             }
 
             if (!result.Succeeded)
