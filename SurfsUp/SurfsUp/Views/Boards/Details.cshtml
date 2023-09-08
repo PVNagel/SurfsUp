@@ -62,7 +62,11 @@
             </dd>
         </dl>
         <div style="float: left;">
-            <a asp-action="Create" asp-controller="Rentings" asp-route-boardId="@Model?.Id">Rent</a>
+            @if(User.Identity.IsAuthenticated)
+            {
+                <a asp-action="Create" asp-controller="Rentings" asp-route-boardId="@Model?.Id">Rent</a>
+            }
+            
         @if (Context.User.IsInRole("Admin"))
         {
             <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a>

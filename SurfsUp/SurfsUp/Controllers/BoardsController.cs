@@ -66,13 +66,19 @@ namespace SurfsUp.Controllers
 
             // Opret en liste til at holde de boards, der skal fjernes
             var boardsToRemove = new List<Board>();
+
+            string userId = null;
             var nameIdentifierClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-            var userId = nameIdentifierClaim.Value;
+            if (nameIdentifierClaim != null)
+            {
+                userId = nameIdentifierClaim.Value;
+            }
+
             foreach (var board in boardsList)
             {
                 foreach (var renting in board.Rentings)
                 {
-                    if(renting.SurfsUpUserId != userId)
+                    if(renting.SurfsUpUserId != userId || userId == null)
                     {
                         if (DateTime.Now > renting.StartDate && DateTime.Now < renting.EndDate)
                         {
