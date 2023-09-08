@@ -58,6 +58,7 @@ namespace SurfsUp.Controllers
             var userId = nameIdentifierClaim.Value;
             ViewData["UserId"] = userId;
             ViewData["BoardId"] = boardId;
+            ViewData["StartDate"] = DateTime.Now;
             return View();
         }
 
@@ -75,7 +76,7 @@ namespace SurfsUp.Controllers
                     var rentings = _context.Renting.Where(x => x.BoardId == renting.BoardId);
                     foreach(var item in rentings)
                     {
-                        if (DateTime.Now > item.StartDate && DateTime.Now < item.EndDate)
+                        if (renting.StartDate > item.StartDate && renting.EndDate < item.EndDate)
                         {
                             ModelState.AddModelError(string.Empty,
                                 "Unable to create new renting because another renting has already been created.");
