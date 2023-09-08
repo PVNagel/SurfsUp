@@ -3,18 +3,22 @@
 
 @{
     ViewData["Title"] = "Index";
-} 
+}
 
 <h1>Index</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
+@if(Context.User.IsInRole("Admin"))
+{
+    <p>
+        <a asp-action="Create">Create New</a>
+    </p>
+}
 
-<form asp-action="Index" method="get" >
+
+<form asp-action="Index" method="get">
     <div>
         <input type="text" name="searchString" value="@ViewData["CurrentFilter"]" style="float: left; margin-right:10px" />
-        <input type="submit" value="Search"/>
+        <input type="submit" value="Search" />
 
         <select id="selectedProperty" name="selectedProperty" class="form-control" style="height:30px; width:200px; float: left; font-size:12px; font-weight:500; text-align:center; border-color:black; margin-right:10px">
             <option value="">-- Select a property --</option>
@@ -24,15 +28,15 @@
             }
         </select>
 
-        
+
 
 
     </div>
     <div>
         <a asp-action="Index"> Reset </a>
     </div>
-    
-    
+
+
 </form>
 
 
@@ -47,60 +51,70 @@
                 <a asp-action="Index" asp-route-sortOrder="@ViewData["LengthSortParm"]"> Length</a>
             </th>
             <th>
-                 <a asp-action="Index" asp-route-sortOrder="@ViewData["WidthSortParm"]"> Width</a>
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["WidthSortParm"]"> Width</a>
             </th>
             <th>
-                 <a asp-action="Index" asp-route-sortOrder="@ViewData["ThicknessSortParm"]"> Thickness</a>
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["ThicknessSortParm"]"> Thickness</a>
             </th>
             <th>
-                 <a asp-action="Index" asp-route-sortOrder="@ViewData["TypeSortParm"]"> Type</a>
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["TypeSortParm"]"> Type</a>
             </th>
             <th>
-               <a asp-action="Index" asp-route-sortOrder="@ViewData["VolumeSortParm"]"> Volume</a>
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["VolumeSortParm"]"> Volume</a>
             </th>
             <th>
                 <a asp-action="Index" asp-route-sortOrder="@ViewData["PriceSortParm"]"> Price</a>
             </th>
             <th>
-               Equipment
+                Equipment
             </th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Length)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Width)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Thickness)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Type)
-            </td>
-              <td>
-                @Html.DisplayFor(modelItem => item.Volume)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Price)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Equipment)
-            </td>
-            
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Length)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Width)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Thickness)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Type)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Volume)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Price)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Equipment)
+                </td>
+
+                <td>
+                    @if (Context.User.IsInRole("Admin"))
+                    {
+                        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+                    }
+
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a>
+
+                    @if (Context.User.IsInRole("Admin"))
+                    {
+                        <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    }
+
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
 
