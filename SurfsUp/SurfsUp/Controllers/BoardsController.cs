@@ -3,13 +3,16 @@ using System.Collections.Generic;
 using System.Drawing.Printing;
 using System.Linq;
 using System.Reflection;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using SurfsUp.Areas.Identity.Data;
 using SurfsUp.Data;
 using SurfsUp.Models;
 
@@ -19,11 +22,13 @@ namespace SurfsUp.Controllers
     {
         private readonly SurfsUpContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly UserManager<SurfsUpUser> _userManager;
 
-        public BoardsController(SurfsUpContext context, IWebHostEnvironment webHostEnvironment)
+        public BoardsController(SurfsUpContext context, IWebHostEnvironment webHostEnvironment, UserManager<SurfsUpUser> _userManager)
         {
             _context = context;
             _webHostEnvironment = webHostEnvironment;
+            this._userManager = _userManager;
         }
 
         // GET: Boards
@@ -57,8 +62,35 @@ namespace SurfsUp.Controllers
             
             ViewData["CurrentFilter"] = searchString;
 
-            var boards = from b in _context.Board select b;
+            var boardsList = _context.Board.Include(x => x.Rentings).ToList();
 
+            // Opret en liste til at holde de boards, der skal fjernes
+            var boardsToRemove = new List<Board>();
+            var nameIdentifierClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            var userId = nameIdentifierClaim.Value;
+            foreach (var board in boardsList)
+            {
+                foreach (var renting in board.Rentings)
+                {
+                    if(renting.SurfsUpUserId != userId)
+                    {
+                        if (DateTime.Now > renting.StartDate && DateTime.Now < renting.EndDate)
+                        {
+                            // Tilføj dette board til listen over boards, der skal fjernes
+                            boardsToRemove.Add(board);
+                            break; // Du kan bryde ud af den indre løkke, når en leasing er fundet
+                        }
+                    }
+                }
+            }
+
+            // Fjern de boards, der er markeret til fjernelse
+            foreach (var boardToRemove in boardsToRemove)
+            {
+                boardsList.Remove(boardToRemove);
+            }
+
+            var boards = boardsList.AsQueryable();
 
             switch (sortOrder)
             {
@@ -153,7 +185,7 @@ namespace SurfsUp.Controllers
             }
 
 
-            return View(await PaginatedList<Board>.CreateAsync(await boards.AsNoTracking().ToListAsync(), pageNumber ?? 1, pageSize));
+            return View(await PaginatedList<Board>.CreateAsync(boards.AsNoTracking().ToList(), pageNumber ?? 1, pageSize));
         }
 
         
