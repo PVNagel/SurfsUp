@@ -4,6 +4,7 @@ using System.Drawing.Printing;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -155,6 +156,7 @@ namespace SurfsUp.Controllers
             return View(await PaginatedList<Board>.CreateAsync(await boards.AsNoTracking().ToListAsync(), pageNumber ?? 1, pageSize));
         }
 
+        
         // GET: Boards/Details/5
         public async Task<IActionResult> Details(int? id)
         {
@@ -197,6 +199,8 @@ namespace SurfsUp.Controllers
         }
 
         // GET: Boards/Create
+
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             return View(new Board());
@@ -246,7 +250,9 @@ namespace SurfsUp.Controllers
             return View(board);
         }
 
+
         // GET: Boards/Edit/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null || _context.Board == null)
@@ -295,6 +301,7 @@ namespace SurfsUp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Length,Width,Thickness,Volume,Type,Price,Equipment,Attachments")] Board board)
         {
             if (id != board.Id)
@@ -352,6 +359,7 @@ namespace SurfsUp.Controllers
         }
 
         // GET: Boards/Delete/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null || _context.Board == null)
@@ -397,6 +405,7 @@ namespace SurfsUp.Controllers
         // POST: Boards/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             if (_context.Board == null)
@@ -433,6 +442,7 @@ namespace SurfsUp.Controllers
         //POST: Boards/Edit/DeleteImg
         [HttpPost, ActionName("DeleteImgConfirmed")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public IActionResult DeleteImgConfirmed(string fileName, int id)
         {
             string rootPath = _webHostEnvironment.WebRootPath;
