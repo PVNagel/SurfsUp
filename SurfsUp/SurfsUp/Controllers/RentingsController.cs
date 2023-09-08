@@ -68,22 +68,25 @@ namespace SurfsUp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("BoardId,StartDate,EndDate,SurfsUpUserId")] Renting renting)
         {
-
             try
             {
-
                 if (ModelState.IsValid)
                 {
+                    var rentings = _context.Renting.Where(x => x.BoardId == renting.BoardId);
+                    foreach(var item in rentings)
+                    {
+                        if (DateTime.Now > item.StartDate && DateTime.Now < item.EndDate)
+                        {
+                            ModelState.AddModelError(string.Empty,
+                                "Unable to create new renting because another renting has already been created.");
+                            return View(renting);
+                        }
+                    }
                     _context.Add(renting);
                     await _context.SaveChangesAsync();
                     return RedirectToAction(nameof(Index));
                 }
-                ViewData["BoardId"] = new SelectList(_context.Board, "Id", "Name", renting.BoardId);
-                ViewData["SurfsUpUserId"] = new SelectList(_context.Users, "Id", "Id", renting.SurfsUpUserId);
                 return View(renting);
-
-
-
             }
             catch (Exception)
             {
