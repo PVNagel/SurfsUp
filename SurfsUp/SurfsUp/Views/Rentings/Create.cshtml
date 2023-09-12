@@ -30,9 +30,8 @@
         </form>
     </div>
 </div>
-
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-controller="Boards" asp-action="Details" asp-route-id="@ViewData["BoardId"]" >Back to Board</a>
 </div>
 
 @section Scripts {
