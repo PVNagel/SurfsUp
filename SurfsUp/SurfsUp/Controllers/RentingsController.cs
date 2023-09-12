@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -13,6 +14,7 @@ using SurfsUp.Models;
 
 namespace SurfsUp.Controllers
 {
+    [Authorize]
     public class RentingsController : Controller
     {
         private readonly SurfsUpContext _context;
@@ -54,12 +56,9 @@ namespace SurfsUp.Controllers
         // GET: Rentings/Create
         public IActionResult Create(int boardId)
         {
-            var nameIdentifierClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-            var userId = nameIdentifierClaim.Value;
-            ViewData["UserId"] = userId;
-            ViewData["BoardId"] = boardId;
-            ViewData["StartDate"] = DateTime.Now;
-            return View();
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            var renting = new Renting { BoardId = boardId, StartDate = DateTime.Now, SurfsUpUserId = userId };
+            return View(renting);
         }
 
         // POST: Rentings/Create
