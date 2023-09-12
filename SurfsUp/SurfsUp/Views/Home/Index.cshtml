@@ -7,12 +7,44 @@
 @{
     ViewData["Title"] = "Home Page";
 }
-<h1>
-    Welcome to our home page
-</h1>
-<p>
-    Johnsen er gay
-</p>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>@ViewData["Title"]</title>
+    <!-- Tilføj eventuelle stilark og JavaScript-filer her -->
+</head>
+<body>
+    <header>
+        <h1>Velkommen til Surf's Up!</h1>
+    </header>
+
+    <main>
+        <section>
+            <img src="~/frontPageImages/SurfsUp3Piece.jpg" height="500px" width="750px">
+        </section>
+        <section>
+            <h4>Om os</h4>
+            <p>
+                Velkommen til vores surfboard-udlejningsside! Vi tilbyder et stort udvalg af surfboards til udlejning, uanset om du er nybegynder eller erfaren surfer.
+            </p>
+        </section>
+
+        <section>
+            <h4>Vores tjenester</h4>
+            <p>
+                Udforsk vores udvalg af surfboards, book leje online, og kom ud på bølgerne i dag! Vi har også surfudstyr og tilbehør til rådighed.
+            </p>
+        </section>
+
+        <section>
+            <h4>Kontakt os</h4>
+            <p>
+                Har du spørgsmål eller brug for hjælp? Kontakt vores kundeservice for assistance.
+            </p>
+        </section>
+    </main>
+</body>
+</html>
 
 @if (User.IsInRole("Admin"))
 {
