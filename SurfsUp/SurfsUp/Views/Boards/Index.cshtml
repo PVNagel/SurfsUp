@@ -27,16 +27,10 @@
                 <option value="@property.Value">@property.Text</option>
             }
         </select>
-
-
-
-
     </div>
     <div>
         <a asp-action="Index"> Reset </a>
     </div>
-
-
 </form>
 
 
@@ -45,25 +39,32 @@
     <thead>
         <tr>
             <th>
-                <a asp-action="Index" asp-route-sortOrder="@ViewData["NameSortParm"]">Name</a>
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["NameSortParm"]"
+                   asp-route-searchString="@ViewData["CurrentFilter"]">Name</a>
             </th>
             <th>
-                <a asp-action="Index" asp-route-sortOrder="@ViewData["LengthSortParm"]"> Length</a>
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["LengthSortParm"]"
+                   asp-route-searchString="@ViewData["CurrentFilter"]"> Length</a>
             </th>
             <th>
-                <a asp-action="Index" asp-route-sortOrder="@ViewData["WidthSortParm"]"> Width</a>
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["WidthSortParm"]"
+                   asp-route-searchString="@ViewData["CurrentFilter"]"> Width</a>
             </th>
             <th>
-                <a asp-action="Index" asp-route-sortOrder="@ViewData["ThicknessSortParm"]"> Thickness</a>
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["ThicknessSortParm"]"
+                   asp-route-searchString="@ViewData["CurrentFilter"]"> Thickness</a>
             </th>
             <th>
-                <a asp-action="Index" asp-route-sortOrder="@ViewData["TypeSortParm"]"> Type</a>
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["TypeSortParm"]"
+                   asp-route-searchString="@ViewData["CurrentFilter"]"> Type</a>
             </th>
             <th>
-                <a asp-action="Index" asp-route-sortOrder="@ViewData["VolumeSortParm"]"> Volume</a>
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["VolumeSortParm"]"
+                   asp-route-searchString="@ViewData["CurrentFilter"]"> Volume</a>
             </th>
             <th>
-                <a asp-action="Index" asp-route-sortOrder="@ViewData["PriceSortParm"]"> Price</a>
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["PriceSortParm"]"
+                   asp-route-searchString="@ViewData["CurrentFilter"]"> Price</a>
             </th>
             <th>
                 Equipment
