@@ -5,6 +5,7 @@ using SurfsUp.Data;
 using SurfsUp.Areas.Identity.Data;
 using System.Globalization;
 using Microsoft.AspNetCore.Identity;
+using SurfsUp.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<SurfsUpContext>(options =>
@@ -14,6 +15,8 @@ builder.Services.AddDbContext<SurfsUpContext>(options =>
 builder.Services.AddDefaultIdentity<SurfsUpUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<SurfsUpContext>();
+
+builder.Services.AddScoped<ImageService>();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();

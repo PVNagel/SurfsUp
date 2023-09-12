@@ -16,6 +16,10 @@ namespace SurfsUp.Data
         {
         }
 
+        public DbSet<Board> Boards { get; set; } = default!;
+        public DbSet<Image> Images { get; set; } = default!;
+        public DbSet<Renting> Renting { get; set; } = default!;
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -23,10 +27,5 @@ namespace SurfsUp.Data
             // For example, you can rename the ASP.NET Identity table names and more.
             // Add your customizations after calling base.OnModelCreating(builder);
         }
-
-        public DbSet<SurfsUp.Models.Board> Boards { get; set; } = default!;
-        public DbSet<Image> Images { get; set; }
-
-        public DbSet<SurfsUp.Models.Renting>? Renting { get; set; }
     }
 }

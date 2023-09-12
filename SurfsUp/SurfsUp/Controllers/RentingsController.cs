@@ -30,16 +30,12 @@ namespace SurfsUp.Controllers
         public async Task<IActionResult> Index()
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-            if(User.IsInRole("Admin"))
-            {
-                var surfsUpContext = _context.Renting.Include(r => r.Board).Include(r => r.SurfsUpUser);
-                return View(await surfsUpContext.ToListAsync());
-            }
-            else
-            {
-                var surfsUpContext = _context.Renting.Include(r => r.Board).Include(r => r.SurfsUpUser).Where(x => x.SurfsUpUserId == userId);
-                return View(await surfsUpContext.ToListAsync());
-            }
+
+            List<Renting> rentings = User.IsInRole("Admin") ?
+                await _context.Renting.Include(r => r.Board).Include(r => r.SurfsUpUser).ToListAsync() :
+                await _context.Renting.Include(r => r.Board).Include(r => r.SurfsUpUser).Where(x => x.SurfsUpUserId == userId).ToListAsync();
+
+            return View(rentings);
         }
 
         // GET: Rentings/Details/5

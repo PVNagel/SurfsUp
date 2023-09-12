@@ -32,8 +32,6 @@ namespace SurfsUp.Models
         public decimal Price { get; set; }
         [DataType(DataType.Text)]
         public string? Equipment { get; set; }
-        [NotMapped]
-        public IList<IFormFile>? Attachments { get; set; }
         public ICollection<Renting>? Rentings { get; set; }
         public ICollection<Image>? Images { get; set; }
 

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing.Printing;
 using System.Linq;
+using System.Net.Mail;
 using System.Reflection;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -10,11 +11,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using SurfsUp.Areas.Identity.Data;
 using SurfsUp.Data;
 using SurfsUp.Models;
+using SurfsUp.Services;
 
 namespace SurfsUp.Controllers
 {
@@ -23,22 +26,31 @@ namespace SurfsUp.Controllers
         private readonly SurfsUpContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly UserManager<SurfsUpUser> _userManager;
+        private readonly ImageService _imageService;
 
-        public BoardsController(SurfsUpContext context, IWebHostEnvironment webHostEnvironment, UserManager<SurfsUpUser> _userManager)
+        public BoardsController(SurfsUpContext context, IWebHostEnvironment webHostEnvironment, UserManager<SurfsUpUser> userManager, ImageService imageService)
         {
             _context = context;
             _webHostEnvironment = webHostEnvironment;
-            this._userManager = _userManager;
+            this._userManager = userManager;
+            _imageService = imageService;
         }
 
         // GET: Boards
         public async Task<IActionResult> Index(string sortOrder, string currentFilter, string searchString, string selectedProperty, int? pageNumber)
         {
             int pageSize = 5;
+
             if (!string.IsNullOrEmpty(searchString))
             {
                 searchString = searchString.ToLower();
+                pageNumber = 1;
             }
+            else
+            {
+                searchString = currentFilter;
+            }
+
             ViewData["CurrentSort"] = sortOrder;
             ViewData["NameSortParm"] = string.IsNullOrEmpty(sortOrder) ? "Name_Desc" : "";
             ViewData["LengthSortParm"] = sortOrder == "Length" ? "Length_Desc" : "Length";
@@ -48,55 +60,18 @@ namespace SurfsUp.Controllers
             ViewData["TypeSortParm"] = sortOrder == "Type" ? "Type_Desc" : "Type";
             ViewData["PriceSortParm"] = sortOrder == "Price" ? "Price_Desc" : "Price";
 
-            if (searchString != null)
-            {
-                pageNumber = 1;
-            }
-            else
-            {
-                searchString = currentFilter;
-            }
-
             var modelProperties = typeof(Board).GetProperties(); 
             ViewBag.PropertyList = new SelectList(modelProperties, "Name", "Name");
             
             ViewData["CurrentFilter"] = searchString;
 
-            var boardsList = _context.Boards.Include(x => x.Rentings).ToList();
-
-            // Opret en liste til at holde de boards, der skal fjernes
-            var boardsToRemove = new List<Board>();
-
             string userId = null;
-            var nameIdentifierClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-            if (nameIdentifierClaim != null)
+            if (User.Identity.IsAuthenticated)
             {
-                userId = nameIdentifierClaim.Value;
+                userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
             }
-
-            foreach (var board in boardsList)
-            {
-                foreach (var renting in board.Rentings)
-                {
-                    if(renting.SurfsUpUserId != userId || userId == null)
-                    {
-                        if (DateTime.Now > renting.StartDate && DateTime.Now < renting.EndDate)
-                        {
-                            // Tilføj dette board til listen over boards, der skal fjernes
-                            boardsToRemove.Add(board);
-                            break; // Du kan bryde ud af den indre løkke, når en leasing er fundet
-                        }
-                    }
-                }
-            }
-
-            // Fjern de boards, der er markeret til fjernelse
-            foreach (var boardToRemove in boardsToRemove)
-            {
-                boardsList.Remove(boardToRemove);
-            }
-
-            var boards = boardsList.AsQueryable();
+            var boardsList = _context.Boards.Include(x => x.Rentings).ToList();
+            var boards = RemoveBoardsRentedByOthers(boardsList, userId);
 
             switch (sortOrder)
             {
@@ -146,30 +121,7 @@ namespace SurfsUp.Controllers
 
             if (selectedProperty != null)
             {
-                var searchBoards = new List<Board>();
-                foreach (Board board in boards)
-                {
-                    PropertyInfo propertyInfo = board.GetType().GetProperty(selectedProperty);
-                    if(propertyInfo != null)
-                    {
-                        object propertyValue = propertyInfo.GetValue(board);
-                        if (propertyValue != null)
-                        {
-                            if (!String.IsNullOrEmpty(searchString))
-                            {
-                                if (propertyValue.ToString().ToLower().Contains(searchString))
-                                {
-                                    searchBoards.Add(board);
-                                }
-                            }
-                            else
-                            {
-                                searchBoards.Add(board);
-                            }
-                        }
-                    }
-                }
-
+                var searchBoards = MakeNewListFilteredByProperty(boards, selectedProperty, searchString);
                 var paginatedList = await PaginatedList<Board>.CreateAsync(searchBoards, pageNumber ?? 1, pageSize);
                 return View(paginatedList);
             }
@@ -189,7 +141,6 @@ namespace SurfsUp.Controllers
                 var paginatedList = await PaginatedList<Board>.CreateAsync(result.ToList(), pageNumber ?? 1, pageSize);
                 return View(paginatedList);
             }
-
 
             return View(await PaginatedList<Board>.CreateAsync(boards.AsNoTracking().ToList(), pageNumber ?? 1, pageSize));
         }
@@ -211,29 +162,6 @@ namespace SurfsUp.Controllers
                 return NotFound();
             }
 
-            //string rootPath = _webHostEnvironment.WebRootPath;
-            //var path = Path.Combine(rootPath + "/Images/" + id);
-            //if (Directory.Exists(path))
-            //{
-            //    string[] filePaths = Directory.GetFiles(path);
-
-            //    List<IFormFile> files = new List<IFormFile>();  // List that will hold the files and subfiles in path
-            //    foreach (string filePath in filePaths)
-            //    {
-            //        using (var stream = new System.IO.FileStream(filePath, System.IO.FileMode.Open))
-            //        {
-            //            IFormFile file = new FormFile(
-            //            baseStream: stream,
-            //            baseStreamOffset: 0,
-            //            length: new System.IO.FileInfo(filePath).Length,
-            //            name: "formFile",
-            //            fileName: System.IO.Path.GetFileName(filePath));
-            //            files.Add(file);
-            //        }
-            //    }
-
-            //    board.Attachments = files;
-            //}
             return View(board);
         }
 
@@ -250,7 +178,7 @@ namespace SurfsUp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Length,Width,Thickness,Volume,Type,Price,Equipment,Attachments")] Board board)
+        public async Task<IActionResult> Create([Bind("Name,Length,Width,Thickness,Volume,Type,Price,Equipment")] Board board, IList<IFormFile>? attachments)
         {
             if (ModelState.IsValid)
             {
@@ -258,33 +186,9 @@ namespace SurfsUp.Controllers
                 var entity = _context.Add(board).Entity;
                 await _context.SaveChangesAsync();
 
-                if (board.Attachments != null)
+                if (attachments != null)
                 {
-                    string rootPath = _webHostEnvironment.WebRootPath;
-                    foreach (var formFile in board.Attachments)
-                    {
-                        if (formFile.Length > 0)
-                        {
-                            var filePath = Path.Combine(rootPath + "/images/");
-
-                            if (!Directory.Exists(filePath))
-                            {
-                                Directory.CreateDirectory(filePath);
-                            }
-
-                            filePath = Path.Combine(rootPath + "/images/", formFile.FileName);
-
-                            using (var stream = System.IO.File.Create(filePath))
-                            {
-                                await formFile.CopyToAsync(stream);
-                            }
-
-                            filePath = Path.Combine("/images/", formFile.FileName);
-
-                            _context.Images.Add(new Image { BoardId = entity.Id, Path = filePath });
-                        }
-                    }
-                    await _context.SaveChangesAsync();
+                    await _imageService.SaveImages(entity.Id, attachments);
                 }
               
                 return RedirectToAction(nameof(Index));
@@ -310,33 +214,6 @@ namespace SurfsUp.Controllers
                 return NotFound();
             }
 
-            //string rootPath = _webHostEnvironment.WebRootPath;
-            //var path = Path.Combine(rootPath + "/images/" + id);
-            //if (Directory.Exists(path))
-            //{
-            //    string[] filePaths = Directory.GetFiles(path);
-
-            //    List<IFormFile> files = new List<IFormFile>();  // List that will hold the files and subfiles in path
-            //    foreach (string filePath in filePaths)
-            //    {
-            //        using (var stream = new System.IO.FileStream(filePath, System.IO.FileMode.Open))
-            //        {
-            //            IFormFile file = new FormFile(
-            //            baseStream: stream,
-            //            baseStreamOffset: 0,
-            //            length: new System.IO.FileInfo(filePath).Length,
-            //            name: "formFile",
-            //            fileName: System.IO.Path.GetFileName(filePath));
-            //            files.Add(file);
-            //        }
-            //    }
-
-            //    board.Attachments = files;
-            //}
-
-
-
-
             return View(board);
         }
 
@@ -346,7 +223,7 @@ namespace SurfsUp.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Length,Width,Thickness,Volume,Type,Price,Equipment,Attachments")] Board board)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Length,Width,Thickness,Volume,Type,Price,Equipment")] Board board, IList<IFormFile>? attachments)
         {
             if (id != board.Id)
             {
@@ -360,36 +237,10 @@ namespace SurfsUp.Controllers
                     _context.Update(board);
                     await _context.SaveChangesAsync();
 
-                    if(board.Attachments != null)
+                    if (attachments != null)
                     {
-                        string rootPath = _webHostEnvironment.WebRootPath;
-                        foreach (var formFile in board.Attachments)
-                        {
-                            if (formFile.Length > 0)
-                            {
-                                var filePath = Path.Combine(rootPath + "/images/");
-
-                                if (!Directory.Exists(filePath))
-                                {
-                                    Directory.CreateDirectory(filePath);
-                                }
-
-                                filePath = Path.Combine(rootPath + "/images/", formFile.FileName);
-
-                                using (var stream = System.IO.File.Create(filePath))
-                                {
-                                    await formFile.CopyToAsync(stream);
-                                }
-
-                                filePath = Path.Combine("/images/", formFile.FileName);
-
-                                _context.Images.Add(new Image { BoardId = id, Path = filePath });
-                            }
-                        }
-                        await _context.SaveChangesAsync();
+                        await _imageService.SaveImages(id, attachments);
                     }
-                    
-
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -424,31 +275,6 @@ namespace SurfsUp.Controllers
                 return NotFound();
             }
 
-            //string rootPath = _webHostEnvironment.WebRootPath;
-            //var path = Path.Combine(rootPath + "/Images/" + id);
-            //if (Directory.Exists(path))
-            //{
-            //    string[] filePaths = Directory.GetFiles(path);
-
-            //    List<IFormFile> files = new List<IFormFile>();  // List that will hold the files and subfiles in path
-            //    foreach (string filePath in filePaths)
-            //    {
-            //        using (var stream = new System.IO.FileStream(filePath, System.IO.FileMode.Open))
-            //        {
-            //            IFormFile file = new FormFile(
-            //            baseStream: stream,
-            //            baseStreamOffset: 0,
-            //            length: new System.IO.FileInfo(filePath).Length,
-            //            name: "formFile",
-            //            fileName: System.IO.Path.GetFileName(filePath));
-            //            files.Add(file);
-            //        }
-            //    }
-
-            //    board.Attachments = files;
-            //}
-
-
             return View(board);
         }
 
@@ -465,24 +291,9 @@ namespace SurfsUp.Controllers
             var board = await _context.Boards.FindAsync(id);
             if (board != null)
             {
+                await _imageService.DeleteImagesAsync(id);
                 _context.Boards.Remove(board);
-            }
-            
-            await _context.SaveChangesAsync();
-
-            string rootPath = _webHostEnvironment.WebRootPath;
-
-            var images = _context.Images.Where(x => x.BoardId == board.Id).ToList();
-
-            foreach(var image in images)
-            {
-                _context.Images.Remove(image);
-                var filePath = Path.Combine(rootPath, image.Path);
-
-                if (Directory.Exists(filePath))
-                {
-                    Directory.Delete(filePath, true);
-                }
+                await _context.SaveChangesAsync();
             }
 
             return RedirectToAction(nameof(Index));
@@ -490,19 +301,66 @@ namespace SurfsUp.Controllers
 
         private bool BoardExists(int id)
         {
-          return (_context.Boards?.Any(e => e.Id == id)).GetValueOrDefault();
+            return (_context.Boards?.Any(e => e.Id == id)).GetValueOrDefault();
         }
 
-        //POST: Boards/Edit/DeleteImg
-        [HttpPost, ActionName("DeleteImgConfirmed")]
-        [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")]
-        public IActionResult DeleteImgConfirmed(string path, int id)
+        private static IQueryable<Board> RemoveBoardsRentedByOthers(List<Board> boards, string userId)
         {
-            _context.Images.Remove(_context.Images.Find(id));
-            _context.SaveChanges();
+            // Opret en liste til at holde de boards, der skal fjernes
+            var boardsToRemove = new List<Board>();
 
-            return RedirectToAction(nameof(Edit), new { id = id });
+            foreach (var board in boards)
+            {
+                foreach (var renting in board.Rentings)
+                {
+                    if (renting.SurfsUpUserId != userId || userId == null)
+                    {
+                        if (DateTime.Now > renting.StartDate && DateTime.Now < renting.EndDate)
+                        {
+                            // Tilføj dette board til listen over boards, der skal fjernes
+                            boardsToRemove.Add(board);
+                            break; // Du kan bryde ud af den indre løkke, når en leasing er fundet
+                        }
+                    }
+                }
+            }
+
+            // Fjern de boards, der er markeret til fjernelse
+            foreach (var boardToRemove in boardsToRemove)
+            {
+                boards.Remove(boardToRemove);
+            }
+
+            return boards.AsQueryable();
+        }
+
+        private static List<Board> MakeNewListFilteredByProperty(IQueryable<Board> boards, string selectedProperty, string searchString)
+        {
+            var searchBoards = new List<Board>();
+            foreach (Board board in boards)
+            {
+                PropertyInfo propertyInfo = board.GetType().GetProperty(selectedProperty);
+                if (propertyInfo != null)
+                {
+                    object propertyValue = propertyInfo.GetValue(board);
+                    if (propertyValue != null)
+                    {
+                        if (!String.IsNullOrEmpty(searchString))
+                        {
+                            if (propertyValue.ToString().ToLower().Contains(searchString))
+                            {
+                                searchBoards.Add(board);
+                            }
+                        }
+                        else
+                        {
+                            searchBoards.Add(board);
+                        }
+                    }
+                }
+            }
+
+            return searchBoards;
         }
     }
 }

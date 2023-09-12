@@ -58,11 +58,10 @@
             <div class="form-group">
                 <dl>
                     <dt>
-                        <label asp-for="Attachments"></label>
+                        <label>Images</label>
                     </dt>
                     <dd>
-                        <input asp-for="Attachments" type="file" multiple>
-                        <span asp-validation-for="Attachments"></span>
+                        <input name="attachments" type="file" multiple>
                     </dd>
                 </dl>
             </div>
@@ -78,9 +77,7 @@
             @foreach (Image image in Model.Images)
             {
                 <img href="" style="float:left; height: 200px; width: 200px" src="@image.Path" />
-                <form asp-action="DeleteImgConfirmed">
-                    <input value="@image.Path" name="path" hidden />
-                    <input value="@image.Id" name="id" hidden />
+                <form asp-controller="Images" asp-route-boardId="@Model.Id" asp-route-id="@image.Id" asp-action="Delete">
                     <button type="submit" class="btn btn-danger">Delete</button>
                 </form>
                 
