@@ -29,8 +29,17 @@ namespace SurfsUp.Controllers
         // GET: Rentings
         public async Task<IActionResult> Index()
         {
-            var surfsUpContext = _context.Renting.Include(r => r.Board).Include(r => r.SurfsUpUser);
-            return View(await surfsUpContext.ToListAsync());
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            if(User.IsInRole("Admin"))
+            {
+                var surfsUpContext = _context.Renting.Include(r => r.Board).Include(r => r.SurfsUpUser);
+                return View(await surfsUpContext.ToListAsync());
+            }
+            else
+            {
+                var surfsUpContext = _context.Renting.Include(r => r.Board).Include(r => r.SurfsUpUser).Where(x => x.SurfsUpUserId == userId);
+                return View(await surfsUpContext.ToListAsync());
+            }
         }
 
         // GET: Rentings/Details/5
@@ -54,10 +63,12 @@ namespace SurfsUp.Controllers
         }
 
         // GET: Rentings/Create
-        public IActionResult Create(int boardId)
+        public async Task<IActionResult> Create(int boardId)
         {
+            var board = await _context.Board.FindAsync(boardId);
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-            var renting = new Renting { BoardId = boardId, StartDate = DateTime.Now, SurfsUpUserId = userId };
+            var renting = new Renting { BoardId = boardId, SurfsUpUserId = userId, EndDate = DateTime.Now };
+            ViewData["BoardName"] = board.Name;
             return View(renting);
         }
 
@@ -72,10 +83,13 @@ namespace SurfsUp.Controllers
             {
                 if (ModelState.IsValid)
                 {
+                    renting.StartDate = DateTime.Now;
                     var rentings = _context.Renting.Where(x => x.BoardId == renting.BoardId);
                     foreach(var item in rentings)
                     {
-                        if (renting.StartDate > item.StartDate && renting.EndDate < item.EndDate)
+                        // hvis nye rentings startdate er før item enddate
+                        // ELLER renting startdate er efter item startdate og renting enddate er før item enddate 
+                        if (renting.StartDate < item.EndDate || renting.StartDate > item.StartDate && renting.EndDate < item.EndDate)
                         {
                             ModelState.AddModelError(string.Empty,
                                 "Unable to create new renting because another renting has already been created.");
