@@ -12,11 +12,12 @@
     <div class="col-md-4">
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" name="SurfsUpUserId" value="@ViewBag.UserId" />
-            <input type="hidden" name="StartDate" value="@ViewBag.StartDate" />
+            <input type="hidden" name="SurfsUpUserId" value="@Model.SurfsUpUserId" />
+            <input type="hidden" name="StartDate" value="@Model.StartDate" />
+            <input asp-for="BoardId" type="hidden" />
             <div class="form-group">
-                <label asp-for="BoardId" class="control-label"></label>
-                <input name="BoardId" value="@ViewData["BoardId"]" />
+                <label class="control-label">Board Name</label>
+                <p>@ViewBag.BoardName</p>
             </div>
             <div class="form-group">
                 <label asp-for="EndDate" class="control-label"></label>
@@ -30,9 +31,8 @@
         </form>
     </div>
 </div>
-
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-controller="Boards" asp-action="Details" asp-route-id="@Model.BoardId" >Back to Board</a>
 </div>
 
 @section Scripts {
