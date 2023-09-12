@@ -35,6 +35,7 @@ namespace SurfsUp.Models
         [NotMapped]
         public IList<IFormFile>? Attachments { get; set; }
         public ICollection<Renting>? Rentings { get; set; }
+        public ICollection<Image>? Images { get; set; }
 
     }
     public enum TypeEnum

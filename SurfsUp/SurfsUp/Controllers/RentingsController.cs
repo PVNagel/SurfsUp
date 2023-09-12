@@ -65,7 +65,7 @@ namespace SurfsUp.Controllers
         // GET: Rentings/Create
         public async Task<IActionResult> Create(int boardId)
         {
-            var board = await _context.Board.FindAsync(boardId);
+            var board = await _context.Boards.FindAsync(boardId);
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
             var renting = new Renting { BoardId = boardId, SurfsUpUserId = userId, EndDate = DateTime.Now };
             ViewData["BoardName"] = board.Name;
@@ -121,7 +121,7 @@ namespace SurfsUp.Controllers
             {
                 return NotFound();
             }
-            ViewData["BoardId"] = new SelectList(_context.Board, "Id", "Name", renting.BoardId);
+            ViewData["BoardId"] = new SelectList(_context.Boards, "Id", "Name", renting.BoardId);
             ViewData["SurfsUpUserId"] = new SelectList(_context.Users, "Id", "Id", renting.SurfsUpUserId);
             return View(renting);
         }
@@ -158,7 +158,7 @@ namespace SurfsUp.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["BoardId"] = new SelectList(_context.Board, "Id", "Name", renting.BoardId);
+            ViewData["BoardId"] = new SelectList(_context.Boards, "Id", "Name", renting.BoardId);
             ViewData["SurfsUpUserId"] = new SelectList(_context.Users, "Id", "Id", renting.SurfsUpUserId);
             return View(renting);
         }

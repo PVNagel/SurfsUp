@@ -62,7 +62,7 @@ namespace SurfsUp.Controllers
             
             ViewData["CurrentFilter"] = searchString;
 
-            var boardsList = _context.Board.Include(x => x.Rentings).ToList();
+            var boardsList = _context.Boards.Include(x => x.Rentings).ToList();
 
             // Opret en liste til at holde de boards, der skal fjernes
             var boardsToRemove = new List<Board>();
@@ -198,41 +198,42 @@ namespace SurfsUp.Controllers
         // GET: Boards/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null || _context.Board == null)
+            if (id == null || _context.Boards == null)
             {
                 return NotFound();
             }
 
-            var board = await _context.Board
+            var board = await _context.Boards
+                .Include(x => x.Images)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (board == null)
             {
                 return NotFound();
             }
 
-            string rootPath = _webHostEnvironment.WebRootPath;
-            var path = Path.Combine(rootPath + "/Images/" + id);
-            if (Directory.Exists(path))
-            {
-                string[] filePaths = Directory.GetFiles(path);
+            //string rootPath = _webHostEnvironment.WebRootPath;
+            //var path = Path.Combine(rootPath + "/Images/" + id);
+            //if (Directory.Exists(path))
+            //{
+            //    string[] filePaths = Directory.GetFiles(path);
 
-                List<IFormFile> files = new List<IFormFile>();  // List that will hold the files and subfiles in path
-                foreach (string filePath in filePaths)
-                {
-                    using (var stream = new System.IO.FileStream(filePath, System.IO.FileMode.Open))
-                    {
-                        IFormFile file = new FormFile(
-                        baseStream: stream,
-                        baseStreamOffset: 0,
-                        length: new System.IO.FileInfo(filePath).Length,
-                        name: "formFile",
-                        fileName: System.IO.Path.GetFileName(filePath));
-                        files.Add(file);
-                    }
-                }
+            //    List<IFormFile> files = new List<IFormFile>();  // List that will hold the files and subfiles in path
+            //    foreach (string filePath in filePaths)
+            //    {
+            //        using (var stream = new System.IO.FileStream(filePath, System.IO.FileMode.Open))
+            //        {
+            //            IFormFile file = new FormFile(
+            //            baseStream: stream,
+            //            baseStreamOffset: 0,
+            //            length: new System.IO.FileInfo(filePath).Length,
+            //            name: "formFile",
+            //            fileName: System.IO.Path.GetFileName(filePath));
+            //            files.Add(file);
+            //        }
+            //    }
 
-                board.Attachments = files;
-            }
+            //    board.Attachments = files;
+            //}
             return View(board);
         }
 
@@ -253,35 +254,38 @@ namespace SurfsUp.Controllers
         {
             if (ModelState.IsValid)
             {
+
                 var entity = _context.Add(board).Entity;
                 await _context.SaveChangesAsync();
 
-                if(board.Attachments != null)
+                if (board.Attachments != null)
                 {
                     string rootPath = _webHostEnvironment.WebRootPath;
                     foreach (var formFile in board.Attachments)
                     {
                         if (formFile.Length > 0)
                         {
-                            var filePath = Path.Combine(rootPath + "/Images/" + entity.Id);
+                            var filePath = Path.Combine(rootPath + "/images/");
 
                             if (!Directory.Exists(filePath))
                             {
                                 Directory.CreateDirectory(filePath);
                             }
 
-                            filePath = Path.Combine(rootPath + "/Images/" + entity.Id, formFile.FileName);
+                            filePath = Path.Combine(rootPath + "/images/", formFile.FileName);
 
                             using (var stream = System.IO.File.Create(filePath))
                             {
-
                                 await formFile.CopyToAsync(stream);
                             }
+
+                            filePath = Path.Combine("/images/", formFile.FileName);
+
+                            _context.Images.Add(new Image { BoardId = entity.Id, Path = filePath });
                         }
                     }
+                    await _context.SaveChangesAsync();
                 }
-                    
-
               
                 return RedirectToAction(nameof(Index));
             }
@@ -293,40 +297,42 @@ namespace SurfsUp.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null || _context.Board == null)
+            if (id == null || _context.Boards == null)
             {
                 return NotFound();
             }
 
-            var board = await _context.Board.FindAsync(id);
+            var board = await _context.Boards
+                .Include(x => x.Images)
+                .FirstOrDefaultAsync(x => x.Id == id);
             if (board == null)
             {
                 return NotFound();
             }
 
-            string rootPath = _webHostEnvironment.WebRootPath;
-            var path = Path.Combine(rootPath + "/Images/" + id);
-            if (Directory.Exists(path))
-            {
-                string[] filePaths = Directory.GetFiles(path);
+            //string rootPath = _webHostEnvironment.WebRootPath;
+            //var path = Path.Combine(rootPath + "/images/" + id);
+            //if (Directory.Exists(path))
+            //{
+            //    string[] filePaths = Directory.GetFiles(path);
 
-                List<IFormFile> files = new List<IFormFile>();  // List that will hold the files and subfiles in path
-                foreach (string filePath in filePaths)
-                {
-                    using (var stream = new System.IO.FileStream(filePath, System.IO.FileMode.Open))
-                    {
-                        IFormFile file = new FormFile(
-                        baseStream: stream,
-                        baseStreamOffset: 0,
-                        length: new System.IO.FileInfo(filePath).Length,
-                        name: "formFile",
-                        fileName: System.IO.Path.GetFileName(filePath));
-                        files.Add(file);
-                    }
-                }
+            //    List<IFormFile> files = new List<IFormFile>();  // List that will hold the files and subfiles in path
+            //    foreach (string filePath in filePaths)
+            //    {
+            //        using (var stream = new System.IO.FileStream(filePath, System.IO.FileMode.Open))
+            //        {
+            //            IFormFile file = new FormFile(
+            //            baseStream: stream,
+            //            baseStreamOffset: 0,
+            //            length: new System.IO.FileInfo(filePath).Length,
+            //            name: "formFile",
+            //            fileName: System.IO.Path.GetFileName(filePath));
+            //            files.Add(file);
+            //        }
+            //    }
 
-                board.Attachments = files;
-            }
+            //    board.Attachments = files;
+            //}
 
 
 
@@ -361,21 +367,26 @@ namespace SurfsUp.Controllers
                         {
                             if (formFile.Length > 0)
                             {
-                                var filePath = Path.Combine(rootPath + "/Images/" + id);
+                                var filePath = Path.Combine(rootPath + "/images/");
 
                                 if (!Directory.Exists(filePath))
                                 {
                                     Directory.CreateDirectory(filePath);
                                 }
 
-                                filePath = Path.Combine(rootPath + "/Images/" + id, formFile.FileName);
+                                filePath = Path.Combine(rootPath + "/images/", formFile.FileName);
 
                                 using (var stream = System.IO.File.Create(filePath))
                                 {
                                     await formFile.CopyToAsync(stream);
                                 }
+
+                                filePath = Path.Combine("/images/", formFile.FileName);
+
+                                _context.Images.Add(new Image { BoardId = id, Path = filePath });
                             }
                         }
+                        await _context.SaveChangesAsync();
                     }
                     
 
@@ -400,41 +411,42 @@ namespace SurfsUp.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null || _context.Board == null)
+            if (id == null || _context.Boards == null)
             {
                 return NotFound();
             }
 
-            var board = await _context.Board
+            var board = await _context.Boards
+                .Include(x => x.Images)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (board == null)
             {
                 return NotFound();
             }
 
-            string rootPath = _webHostEnvironment.WebRootPath;
-            var path = Path.Combine(rootPath + "/Images/" + id);
-            if (Directory.Exists(path))
-            {
-                string[] filePaths = Directory.GetFiles(path);
+            //string rootPath = _webHostEnvironment.WebRootPath;
+            //var path = Path.Combine(rootPath + "/Images/" + id);
+            //if (Directory.Exists(path))
+            //{
+            //    string[] filePaths = Directory.GetFiles(path);
 
-                List<IFormFile> files = new List<IFormFile>();  // List that will hold the files and subfiles in path
-                foreach (string filePath in filePaths)
-                {
-                    using (var stream = new System.IO.FileStream(filePath, System.IO.FileMode.Open))
-                    {
-                        IFormFile file = new FormFile(
-                        baseStream: stream,
-                        baseStreamOffset: 0,
-                        length: new System.IO.FileInfo(filePath).Length,
-                        name: "formFile",
-                        fileName: System.IO.Path.GetFileName(filePath));
-                        files.Add(file);
-                    }
-                }
+            //    List<IFormFile> files = new List<IFormFile>();  // List that will hold the files and subfiles in path
+            //    foreach (string filePath in filePaths)
+            //    {
+            //        using (var stream = new System.IO.FileStream(filePath, System.IO.FileMode.Open))
+            //        {
+            //            IFormFile file = new FormFile(
+            //            baseStream: stream,
+            //            baseStreamOffset: 0,
+            //            length: new System.IO.FileInfo(filePath).Length,
+            //            name: "formFile",
+            //            fileName: System.IO.Path.GetFileName(filePath));
+            //            files.Add(file);
+            //        }
+            //    }
 
-                board.Attachments = files;
-            }
+            //    board.Attachments = files;
+            //}
 
 
             return View(board);
@@ -446,27 +458,31 @@ namespace SurfsUp.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (_context.Board == null)
+            if (_context.Boards == null)
             {
                 return Problem("Entity set 'SurfsUpContext.Board'  is null.");
             }
-            var board = await _context.Board.FindAsync(id);
+            var board = await _context.Boards.FindAsync(id);
             if (board != null)
             {
-
-                _context.Board.Remove(board);
+                _context.Boards.Remove(board);
             }
             
             await _context.SaveChangesAsync();
 
             string rootPath = _webHostEnvironment.WebRootPath;
 
+            var images = _context.Images.Where(x => x.BoardId == board.Id).ToList();
 
-            var filePath = Path.Combine(rootPath + "/Images/" + id);
-
-            if (Directory.Exists(filePath))
+            foreach(var image in images)
             {
-                Directory.Delete(filePath, true);
+                _context.Images.Remove(image);
+                var filePath = Path.Combine(rootPath, image.Path);
+
+                if (Directory.Exists(filePath))
+                {
+                    Directory.Delete(filePath, true);
+                }
             }
 
             return RedirectToAction(nameof(Index));
@@ -474,20 +490,17 @@ namespace SurfsUp.Controllers
 
         private bool BoardExists(int id)
         {
-          return (_context.Board?.Any(e => e.Id == id)).GetValueOrDefault();
+          return (_context.Boards?.Any(e => e.Id == id)).GetValueOrDefault();
         }
 
         //POST: Boards/Edit/DeleteImg
         [HttpPost, ActionName("DeleteImgConfirmed")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
-        public IActionResult DeleteImgConfirmed(string fileName, int id)
+        public IActionResult DeleteImgConfirmed(string path, int id)
         {
-            string rootPath = _webHostEnvironment.WebRootPath;
-
-            var filePath = Path.Combine(rootPath + "/Images/" + id, fileName);
-
-            System.IO.File.Delete(filePath);
+            _context.Images.Remove(_context.Images.Find(id));
+            _context.SaveChanges();
 
             return RedirectToAction(nameof(Edit), new { id = id });
         }

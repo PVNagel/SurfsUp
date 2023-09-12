@@ -24,7 +24,8 @@ namespace SurfsUp.Data
             // Add your customizations after calling base.OnModelCreating(builder);
         }
 
-        public DbSet<SurfsUp.Models.Board> Board { get; set; } = default!;
+        public DbSet<SurfsUp.Models.Board> Boards { get; set; } = default!;
+        public DbSet<Image> Images { get; set; }
 
         public DbSet<SurfsUp.Models.Renting>? Renting { get; set; }
     }

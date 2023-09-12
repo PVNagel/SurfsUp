@@ -8,13 +8,9 @@
 
   <ItemGroup>
     <Compile Remove="Views\CSS\**" />
-    <Compile Remove="wwwroot\Images\**" />
     <Content Remove="Views\CSS\**" />
-    <Content Remove="wwwroot\Images\**" />
     <EmbeddedResource Remove="Views\CSS\**" />
-    <EmbeddedResource Remove="wwwroot\Images\**" />
     <None Remove="Views\CSS\**" />
-    <None Remove="wwwroot\Images\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -32,6 +28,7 @@
   <ItemGroup>
     <Folder Include="Migrations\" />
     <Folder Include="wwwroot\frontPageImages\" />
+    <Folder Include="wwwroot\images\" />
     <Folder Include="wwwroot\SeedImages\" />
   </ItemGroup>
 

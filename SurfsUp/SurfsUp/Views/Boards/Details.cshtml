@@ -81,11 +81,11 @@
 
         
 
-        @if (Model.Attachments != null)
+        @if (Model.Images != null)
         {
-            @foreach (IFormFile file in Model.Attachments)
+            @foreach (Image image in Model.Images)
             {
-                <img alt="test" style="float:left; height: 200px; width: 200px" src="@($"/Images/{Model.Id}/" + file.FileName)" />
+                <img alt="test" style="float:left; height: 200px; width: 200px" src="@image.Path" />
             }
         }
 
