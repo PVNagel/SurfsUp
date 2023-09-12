@@ -63,10 +63,9 @@
         </dl>
         <div style="float: left;">
 
-            @if(User.Identity.IsAuthenticated)
-            {
+
                 <a asp-action="Create" asp-controller="Rentings" asp-route-boardId="@Model?.Id">Rent</a>
-            }
+
 
         @if (Context.User.IsInRole("Admin"))
         {
