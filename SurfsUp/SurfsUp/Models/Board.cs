@@ -32,7 +32,10 @@ namespace SurfsUp.Models
         public decimal Price { get; set; }
         [DataType(DataType.Text)]
         public string? Equipment { get; set; }
+
+        // et board kan have mange rentings og en renting kan kun have 1 board. en-til-mange db relation
         public ICollection<Renting>? Rentings { get; set; }
+        // et board kan have mange images og et image kan kun have 1 board. en-til-mange db relation
         public ICollection<Image>? Images { get; set; }
 
     }

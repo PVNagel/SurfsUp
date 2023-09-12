@@ -16,9 +16,9 @@ namespace SurfsUp.Data
                 serviceProvider.GetRequiredService<
                     DbContextOptions<SurfsUpContext>>()))
             {
-                // Look for any movies.
                 if (!context.Boards.Any())
                 {
+                    // Seeder boards ind
                     context.Boards.AddRange(new List<Board>
                     {
                          new Board
@@ -132,9 +132,16 @@ namespace SurfsUp.Data
                             Equipment = "Fin, Paddle, Pump, Leash"
                         }
                     });
+
+                    //gemmer ændringer i databasen, så vi kan få de nye id'er.
+                    //ellers kunne vi godt have nøjes med at gøre det til
+                    //sidst efter vi seedede images, men vi skal bruge id'erne.
                     context.SaveChanges();
 
+                    // henter alle board id's
                     var newBoardIds = context.Boards.Select(board => board.Id).ToList();
+
+                    // seeder images ind med de nye boards id'er
                     context.Images.AddRange(new List<Image>
                     {
                         new Image

@@ -19,6 +19,7 @@ namespace SurfsUp.Controllers
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
+        // bliver kaldt fra Boards Edit View, hvis man sletter et enkelt billede.
         public async Task<IActionResult> Delete(int id, int boardId)
         {
             try

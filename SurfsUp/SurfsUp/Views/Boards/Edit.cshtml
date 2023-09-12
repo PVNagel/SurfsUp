@@ -77,6 +77,7 @@
             @foreach (Image image in Model.Images)
             {
                 <img href="" style="float:left; height: 200px; width: 200px" src="@image.Path" />
+                // Sletter et enkelt billede i Images Controlleren
                 <form asp-controller="Images" asp-route-boardId="@Model.Id" asp-route-id="@image.Id" asp-action="Delete">
                     <button type="submit" class="btn btn-danger">Delete</button>
                 </form>

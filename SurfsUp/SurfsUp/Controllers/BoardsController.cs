@@ -6,6 +6,8 @@ using System.Net.Mail;
 using System.Reflection;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Humanizer.Localisation;
+using MessagePack;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -23,16 +25,20 @@ namespace SurfsUp.Controllers
 {
     public class BoardsController : Controller
     {
-        private readonly SurfsUpContext _context;
+        // her laver vi fields som vi sætter til vores services. 
+        private readonly SurfsUpContext _context; //dbcontext er en scoped service
         private readonly IWebHostEnvironment _webHostEnvironment;
-        private readonly UserManager<SurfsUpUser> _userManager;
-        private readonly ImageService _imageService;
+        private readonly ImageService _imageService; // en scoped service som vi har initialized i Program.cs. Den håndtere images
 
-        public BoardsController(SurfsUpContext context, IWebHostEnvironment webHostEnvironment, UserManager<SurfsUpUser> userManager, ImageService imageService)
+        public BoardsController(
+            //her bruger vi dependency injection til at hente vores services ind i controlleren igennem constructoren.
+            SurfsUpContext context,  
+            IWebHostEnvironment webHostEnvironment, 
+            ImageService imageService) 
         {
+            // sætter vores fields til vores injectede services
             _context = context;
             _webHostEnvironment = webHostEnvironment;
-            this._userManager = userManager;
             _imageService = imageService;
         }
 
@@ -50,7 +56,9 @@ namespace SurfsUp.Controllers
             {
                 searchString = currentFilter;
             }
-
+            
+            // Sortering
+            // Nogen der kan give en lækker forklaring på det her?
             ViewData["CurrentSort"] = sortOrder;
             ViewData["NameSortParm"] = string.IsNullOrEmpty(sortOrder) ? "Name_Desc" : "";
             ViewData["LengthSortParm"] = sortOrder == "Length" ? "Length_Desc" : "Length";
@@ -60,17 +68,23 @@ namespace SurfsUp.Controllers
             ViewData["TypeSortParm"] = sortOrder == "Type" ? "Type_Desc" : "Type";
             ViewData["PriceSortParm"] = sortOrder == "Price" ? "Price_Desc" : "Price";
 
-            var modelProperties = typeof(Board).GetProperties(); 
+            // Sætter vores Board Properties i en Selectlist,
+            // som er en liste vi kan bruge i vores select html tag så det bliver dynamisk sat ind.
+            var modelProperties = typeof(Board).GetProperties();
             ViewBag.PropertyList = new SelectList(modelProperties, "Name", "Name");
             
             ViewData["CurrentFilter"] = searchString;
 
+            // User er et ClaimsPrincipal objekt, som indeholder information om den nuværende bruger.
             string userId = null;
             if (User.Identity.IsAuthenticated)
             {
+                // Vi henter userId, som vi skal bruge til at fjerne de boards som er lejet af andre brugere.
                 userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
             }
             var boardsList = _context.Boards.Include(x => x.Rentings).ToList();
+            // RemoveBoardsRentedByOthers er en metode som vi har lavet til at gøre koden mere læselig.
+            // Jeg har bare gjort det så metoden ikke var så lang og uoverskuelig. (Den findes i bunden af controlleren)
             var boards = RemoveBoardsRentedByOthers(boardsList, userId);
 
             switch (sortOrder)
@@ -119,9 +133,15 @@ namespace SurfsUp.Controllers
                     break;
             }
 
+            // selectedProperty er den parameter vi bruger hvis man vælger at søge specifikt efter bestemte properties.
             if (selectedProperty != null)
             {
+                // MakeNewListFilteredByProperty er en metode vi har lavet til at gøre koden mere læselig. 
+                // Jeg har bare gjort det så metoden ikke var så lang og uoverskuelig. (Den findes i bunden af controlleren)
                 var searchBoards = MakeNewListFilteredByProperty(boards, selectedProperty, searchString);
+
+                // PaginatedList er vores egen klasse.
+                // CreateAsync laver en ny paginatedList med de parametre vi giver.
                 var paginatedList = await PaginatedList<Board>.CreateAsync(searchBoards, pageNumber ?? 1, pageSize);
                 return View(paginatedList);
             }
@@ -178,16 +198,21 @@ namespace SurfsUp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+                                                                                                                            // attachments er ikke længere en del af board,
+                                                                                                                            // da det gav mere mening at de er adskilt og board kun har en 
+                                                                                                                            // Property der hedder Images
         public async Task<IActionResult> Create([Bind("Name,Length,Width,Thickness,Volume,Type,Price,Equipment")] Board board, IList<IFormFile>? attachments)
         {
             if (ModelState.IsValid)
             {
-
                 var entity = _context.Add(board).Entity;
                 await _context.SaveChangesAsync();
 
                 if (attachments != null)
                 {
+                    // _imageService er en service vi har lavet som håndtere alt med images.
+                    // SaveImages Gemmer et image objekt i databasen som har en relation til et
+                    // board via boardId, samt et image path. billedfilerne gemmes i wwwroot
                     await _imageService.SaveImages(entity.Id, attachments);
                 }
               
@@ -222,7 +247,9 @@ namespace SurfsUp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]                                                                                                    // attachments er ikke længere en del af board,
+                                                                                                                                        // da det gav mere mening at de er adskilt og board kun har en 
+                                                                                                                                        // Property der hedder Images
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Length,Width,Thickness,Volume,Type,Price,Equipment")] Board board, IList<IFormFile>? attachments)
         {
             if (id != board.Id)
@@ -239,6 +266,9 @@ namespace SurfsUp.Controllers
 
                     if (attachments != null)
                     {
+                        // _imageService er en service vi har lavet som håndtere alt med images.
+                        // SaveImages Gemmer et image objekt i databasen som har en relation til et
+                        // board via boardId, samt et image path. billedfilerne gemmes i wwwroot
                         await _imageService.SaveImages(id, attachments);
                     }
                 }
@@ -291,6 +321,8 @@ namespace SurfsUp.Controllers
             var board = await _context.Boards.FindAsync(id);
             if (board != null)
             {
+                // DeleteImagesAsync sletter alle images med boardId i databasen
+                // og sletter alle billedfilerne i wwwroot/images som tilhørte de images
                 await _imageService.DeleteImagesAsync(id);
                 _context.Boards.Remove(board);
                 await _context.SaveChangesAsync();
@@ -304,6 +336,8 @@ namespace SurfsUp.Controllers
             return (_context.Boards?.Any(e => e.Id == id)).GetValueOrDefault();
         }
 
+        // Fjerner de boards fra listen boards, som allerede er lejet af en anden. 
+        // og returnere listen som IQueryable<Boards>
         private static IQueryable<Board> RemoveBoardsRentedByOthers(List<Board> boards, string userId)
         {
             // Opret en liste til at holde de boards, der skal fjernes
@@ -334,24 +368,41 @@ namespace SurfsUp.Controllers
             return boards.AsQueryable();
         }
 
+        // Hvis en bestemt property(selectedProperty) er valgt ved søgefeltet, 
+        // laver MakeNewListFilteredByProperty en ny liste hvor den filtrerer 
+        // så det kun er boards med den property der kommer med, derefter 
+        // yderligere filtrering med searchString hvis der også er skrevet noget i den.
+        // Returnerer en liste af boards
         private static List<Board> MakeNewListFilteredByProperty(IQueryable<Board> boards, string selectedProperty, string searchString)
         {
             var searchBoards = new List<Board>();
+            // tjekker alle boards
             foreach (Board board in boards)
             {
+                // board.GetType() kunne også være typeof(Board) får et Type objekt af Board,
+                // som vi kan kalde GetProperty(selectedProperty) på som får propertyInfo for den selectedProperty 
+                // som er valgt af brugeren.
                 PropertyInfo propertyInfo = board.GetType().GetProperty(selectedProperty);
                 if (propertyInfo != null)
                 {
+                    // får den specifikke værdi af propertien som blev valgt for det board vi tjekker.
                     object propertyValue = propertyInfo.GetValue(board);
+
+                    // ser om boardet har en værdi for den Property
                     if (propertyValue != null)
                     {
                         if (!String.IsNullOrEmpty(searchString))
                         {
+                            // hvis brugeren også har skrevet noget i searchstring, 
+                            // tjekkes om property værdien indeholder searchstring
                             if (propertyValue.ToString().ToLower().Contains(searchString))
                             {
+                                // hvis den gør, tilføjes boardet.
                                 searchBoards.Add(board);
                             }
                         }
+                        // hvis ik searchstring er noget, tilføjes boardet hvis
+                        // den har en værdi for den valgte property
                         else
                         {
                             searchBoards.Add(board);
