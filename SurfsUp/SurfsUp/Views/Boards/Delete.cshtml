@@ -61,18 +61,17 @@
             @Html.DisplayFor(model => model.Equipment)
         </dd>
     </dl>
-        <form asp-action="Delete">
-            <input type="hidden" asp-for="Id" />
+        <form asp-action="Delete" asp-route-id="@Model.Id">
             <input type="submit" value="Delete" class="btn btn-danger" /> |
             <a asp-action="Index">Back to List</a>
         </form>
     </div>
     <div class="BoardImg" style="float: left; height: 350px; width: 500px">
-        @if (Model.Attachments != null)
+        @if (Model.Images != null)
         {
-            @foreach (IFormFile file in Model.Attachments)
+            @foreach (Image image in Model.Images)
             {
-                <img href="" style="float:left; height: 200px; width: 200px" src="@($"/Images/{Model.Id}/" + file.FileName)" />
+                <img style="float:left; height: 200px; width: 200px" src="@image.Path" />
             }
         }
     </div>

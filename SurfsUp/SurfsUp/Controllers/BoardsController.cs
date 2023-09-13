@@ -2,37 +2,63 @@ using System;
 using System.Collections.Generic;
 using System.Drawing.Printing;
 using System.Linq;
+using System.Net.Mail;
 using System.Reflection;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using Humanizer.Localisation;
+using MessagePack;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using SurfsUp.Areas.Identity.Data;
 using SurfsUp.Data;
 using SurfsUp.Models;
+using SurfsUp.Services;
 
 namespace SurfsUp.Controllers
 {
     public class BoardsController : Controller
     {
-        private readonly SurfsUpContext _context;
+        // her laver vi fields som vi sætter til vores services. 
+        private readonly SurfsUpContext _context; //dbcontext er en scoped service
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly ImageService _imageService; // en scoped service som vi har initialized i Program.cs. Den håndtere images
 
-        public BoardsController(SurfsUpContext context, IWebHostEnvironment webHostEnvironment)
+        public BoardsController(
+            //her bruger vi dependency injection til at hente vores services ind i controlleren igennem constructoren.
+            SurfsUpContext context,  
+            IWebHostEnvironment webHostEnvironment, 
+            ImageService imageService) 
         {
+            // sætter vores fields til vores injectede services
             _context = context;
             _webHostEnvironment = webHostEnvironment;
+            _imageService = imageService;
         }
 
         // GET: Boards
         public async Task<IActionResult> Index(string sortOrder, string currentFilter, string searchString, string selectedProperty, int? pageNumber)
         {
             int pageSize = 5;
+
             if (!string.IsNullOrEmpty(searchString))
             {
                 searchString = searchString.ToLower();
+                pageNumber = 1;
             }
+            else
+            {
+                searchString = currentFilter;
+            }
+            
+            // Sortering
+            // Nogen der kan give en lækker forklaring på det her?
             ViewData["CurrentSort"] = sortOrder;
             ViewData["NameSortParm"] = string.IsNullOrEmpty(sortOrder) ? "Name_Desc" : "";
             ViewData["LengthSortParm"] = sortOrder == "Length" ? "Length_Desc" : "Length";
@@ -42,22 +68,24 @@ namespace SurfsUp.Controllers
             ViewData["TypeSortParm"] = sortOrder == "Type" ? "Type_Desc" : "Type";
             ViewData["PriceSortParm"] = sortOrder == "Price" ? "Price_Desc" : "Price";
 
-            if (searchString != null)
-            {
-                pageNumber = 1;
-            }
-            else
-            {
-                searchString = currentFilter;
-            }
-
-            var modelProperties = typeof(Board).GetProperties(); 
+            // Sætter vores Board Properties i en Selectlist,
+            // som er en liste vi kan bruge i vores select html tag så det bliver dynamisk sat ind.
+            var modelProperties = typeof(Board).GetProperties();
             ViewBag.PropertyList = new SelectList(modelProperties, "Name", "Name");
             
             ViewData["CurrentFilter"] = searchString;
 
-            var boards = from b in _context.Board select b;
-
+            // User er et ClaimsPrincipal objekt, som indeholder information om den nuværende bruger.
+            string userId = null;
+            if (User.Identity.IsAuthenticated)
+            {
+                // Vi henter userId, som vi skal bruge til at fjerne de boards som er lejet af andre brugere.
+                userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            }
+            var boardsList = _context.Boards.Include(x => x.Rentings).ToList();
+            // RemoveBoardsRentedByOthers er en metode som vi har lavet til at gøre koden mere læselig.
+            // Jeg har bare gjort det så metoden ikke var så lang og uoverskuelig. (Den findes i bunden af controlleren)
+            var boards = RemoveBoardsRentedByOthers(boardsList, userId);
 
             switch (sortOrder)
             {
@@ -105,32 +133,15 @@ namespace SurfsUp.Controllers
                     break;
             }
 
+            // selectedProperty er den parameter vi bruger hvis man vælger at søge specifikt efter bestemte properties.
             if (selectedProperty != null)
             {
-                var searchBoards = new List<Board>();
-                foreach (Board board in boards)
-                {
-                    PropertyInfo propertyInfo = board.GetType().GetProperty(selectedProperty);
-                    if(propertyInfo != null)
-                    {
-                        object propertyValue = propertyInfo.GetValue(board);
-                        if (propertyValue != null)
-                        {
-                            if (!String.IsNullOrEmpty(searchString))
-                            {
-                                if (propertyValue.ToString().ToLower().Contains(searchString))
-                                {
-                                    searchBoards.Add(board);
-                                }
-                            }
-                            else
-                            {
-                                searchBoards.Add(board);
-                            }
-                        }
-                    }
-                }
+                // MakeNewListFilteredByProperty er en metode vi har lavet til at gøre koden mere læselig. 
+                // Jeg har bare gjort det så metoden ikke var så lang og uoverskuelig. (Den findes i bunden af controlleren)
+                var searchBoards = MakeNewListFilteredByProperty(boards, selectedProperty, searchString);
 
+                // PaginatedList er vores egen klasse.
+                // CreateAsync laver en ny paginatedList med de parametre vi giver.
                 var paginatedList = await PaginatedList<Board>.CreateAsync(searchBoards, pageNumber ?? 1, pageSize);
                 return View(paginatedList);
             }
@@ -151,52 +162,32 @@ namespace SurfsUp.Controllers
                 return View(paginatedList);
             }
 
-
-            return View(await PaginatedList<Board>.CreateAsync(await boards.AsNoTracking().ToListAsync(), pageNumber ?? 1, pageSize));
+            return View(await PaginatedList<Board>.CreateAsync(boards.AsNoTracking().ToList(), pageNumber ?? 1, pageSize));
         }
 
+        
         // GET: Boards/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null || _context.Board == null)
+            if (id == null || _context.Boards == null)
             {
                 return NotFound();
             }
 
-            var board = await _context.Board
+            var board = await _context.Boards
+                .Include(x => x.Images)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (board == null)
             {
                 return NotFound();
             }
 
-            string rootPath = _webHostEnvironment.WebRootPath;
-            var path = Path.Combine(rootPath + "/Images/" + id);
-            if (Directory.Exists(path))
-            {
-                string[] filePaths = Directory.GetFiles(path);
-
-                List<IFormFile> files = new List<IFormFile>();  // List that will hold the files and subfiles in path
-                foreach (string filePath in filePaths)
-                {
-                    using (var stream = new System.IO.FileStream(filePath, System.IO.FileMode.Open))
-                    {
-                        IFormFile file = new FormFile(
-                        baseStream: stream,
-                        baseStreamOffset: 0,
-                        length: new System.IO.FileInfo(filePath).Length,
-                        name: "formFile",
-                        fileName: System.IO.Path.GetFileName(filePath));
-                        files.Add(file);
-                    }
-                }
-
-                board.Attachments = files;
-            }
             return View(board);
         }
 
         // GET: Boards/Create
+
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             return View(new Board());
@@ -207,85 +198,46 @@ namespace SurfsUp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Length,Width,Thickness,Volume,Type,Price,Equipment,Attachments")] Board board)
+                                                                                                                            // attachments er ikke længere en del af board,
+                                                                                                                            // da det gav mere mening at de er adskilt og board kun har en 
+                                                                                                                            // Property der hedder Images
+        public async Task<IActionResult> Create([Bind("Name,Length,Width,Thickness,Volume,Type,Price,Equipment")] Board board, IList<IFormFile>? attachments)
         {
             if (ModelState.IsValid)
             {
                 var entity = _context.Add(board).Entity;
                 await _context.SaveChangesAsync();
 
-                if(board.Attachments != null)
+                if (attachments != null)
                 {
-                    string rootPath = _webHostEnvironment.WebRootPath;
-                    foreach (var formFile in board.Attachments)
-                    {
-                        if (formFile.Length > 0)
-                        {
-                            var filePath = Path.Combine(rootPath + "/Images/" + entity.Id);
-
-                            if (!Directory.Exists(filePath))
-                            {
-                                Directory.CreateDirectory(filePath);
-                            }
-
-                            filePath = Path.Combine(rootPath + "/Images/" + entity.Id, formFile.FileName);
-
-                            using (var stream = System.IO.File.Create(filePath))
-                            {
-
-                                await formFile.CopyToAsync(stream);
-                            }
-                        }
-                    }
+                    // _imageService er en service vi har lavet som håndtere alt med images.
+                    // SaveImages Gemmer et image objekt i databasen som har en relation til et
+                    // board via boardId, samt et image path. billedfilerne gemmes i wwwroot
+                    await _imageService.SaveImages(entity.Id, attachments);
                 }
-                    
-
               
                 return RedirectToAction(nameof(Index));
             }
             return View(board);
         }
 
+
         // GET: Boards/Edit/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null || _context.Board == null)
+            if (id == null || _context.Boards == null)
             {
                 return NotFound();
             }
 
-            var board = await _context.Board.FindAsync(id);
+            var board = await _context.Boards
+                .Include(x => x.Images)
+                .FirstOrDefaultAsync(x => x.Id == id);
             if (board == null)
             {
                 return NotFound();
             }
-
-            string rootPath = _webHostEnvironment.WebRootPath;
-            var path = Path.Combine(rootPath + "/Images/" + id);
-            if (Directory.Exists(path))
-            {
-                string[] filePaths = Directory.GetFiles(path);
-
-                List<IFormFile> files = new List<IFormFile>();  // List that will hold the files and subfiles in path
-                foreach (string filePath in filePaths)
-                {
-                    using (var stream = new System.IO.FileStream(filePath, System.IO.FileMode.Open))
-                    {
-                        IFormFile file = new FormFile(
-                        baseStream: stream,
-                        baseStreamOffset: 0,
-                        length: new System.IO.FileInfo(filePath).Length,
-                        name: "formFile",
-                        fileName: System.IO.Path.GetFileName(filePath));
-                        files.Add(file);
-                    }
-                }
-
-                board.Attachments = files;
-            }
-
-
-
 
             return View(board);
         }
@@ -295,7 +247,10 @@ namespace SurfsUp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Length,Width,Thickness,Volume,Type,Price,Equipment,Attachments")] Board board)
+        [Authorize(Roles = "Admin")]                                                                                                    // attachments er ikke længere en del af board,
+                                                                                                                                        // da det gav mere mening at de er adskilt og board kun har en 
+                                                                                                                                        // Property der hedder Images
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Length,Width,Thickness,Volume,Type,Price,Equipment")] Board board, IList<IFormFile>? attachments)
         {
             if (id != board.Id)
             {
@@ -309,31 +264,13 @@ namespace SurfsUp.Controllers
                     _context.Update(board);
                     await _context.SaveChangesAsync();
 
-                    if(board.Attachments != null)
+                    if (attachments != null)
                     {
-                        string rootPath = _webHostEnvironment.WebRootPath;
-                        foreach (var formFile in board.Attachments)
-                        {
-                            if (formFile.Length > 0)
-                            {
-                                var filePath = Path.Combine(rootPath + "/Images/" + id);
-
-                                if (!Directory.Exists(filePath))
-                                {
-                                    Directory.CreateDirectory(filePath);
-                                }
-
-                                filePath = Path.Combine(rootPath + "/Images/" + id, formFile.FileName);
-
-                                using (var stream = System.IO.File.Create(filePath))
-                                {
-                                    await formFile.CopyToAsync(stream);
-                                }
-                            }
-                        }
+                        // _imageService er en service vi har lavet som håndtere alt med images.
+                        // SaveImages Gemmer et image objekt i databasen som har en relation til et
+                        // board via boardId, samt et image path. billedfilerne gemmes i wwwroot
+                        await _imageService.SaveImages(id, attachments);
                     }
-                    
-
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -352,44 +289,21 @@ namespace SurfsUp.Controllers
         }
 
         // GET: Boards/Delete/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null || _context.Board == null)
+            if (id == null || _context.Boards == null)
             {
                 return NotFound();
             }
 
-            var board = await _context.Board
+            var board = await _context.Boards
+                .Include(x => x.Images)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (board == null)
             {
                 return NotFound();
             }
-
-            string rootPath = _webHostEnvironment.WebRootPath;
-            var path = Path.Combine(rootPath + "/Images/" + id);
-            if (Directory.Exists(path))
-            {
-                string[] filePaths = Directory.GetFiles(path);
-
-                List<IFormFile> files = new List<IFormFile>();  // List that will hold the files and subfiles in path
-                foreach (string filePath in filePaths)
-                {
-                    using (var stream = new System.IO.FileStream(filePath, System.IO.FileMode.Open))
-                    {
-                        IFormFile file = new FormFile(
-                        baseStream: stream,
-                        baseStreamOffset: 0,
-                        length: new System.IO.FileInfo(filePath).Length,
-                        name: "formFile",
-                        fileName: System.IO.Path.GetFileName(filePath));
-                        files.Add(file);
-                    }
-                }
-
-                board.Attachments = files;
-            }
-
 
             return View(board);
         }
@@ -397,29 +311,21 @@ namespace SurfsUp.Controllers
         // POST: Boards/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (_context.Board == null)
+            if (_context.Boards == null)
             {
                 return Problem("Entity set 'SurfsUpContext.Board'  is null.");
             }
-            var board = await _context.Board.FindAsync(id);
+            var board = await _context.Boards.FindAsync(id);
             if (board != null)
             {
-
-                _context.Board.Remove(board);
-            }
-            
-            await _context.SaveChangesAsync();
-
-            string rootPath = _webHostEnvironment.WebRootPath;
-
-
-            var filePath = Path.Combine(rootPath + "/Images/" + id);
-
-            if (Directory.Exists(filePath))
-            {
-                Directory.Delete(filePath, true);
+                // DeleteImagesAsync sletter alle images med boardId i databasen
+                // og sletter alle billedfilerne i wwwroot/images som tilhørte de images
+                await _imageService.DeleteImagesAsync(id);
+                _context.Boards.Remove(board);
+                await _context.SaveChangesAsync();
             }
 
             return RedirectToAction(nameof(Index));
@@ -427,21 +333,85 @@ namespace SurfsUp.Controllers
 
         private bool BoardExists(int id)
         {
-          return (_context.Board?.Any(e => e.Id == id)).GetValueOrDefault();
+            return (_context.Boards?.Any(e => e.Id == id)).GetValueOrDefault();
         }
 
-        //POST: Boards/Edit/DeleteImg
-        [HttpPost, ActionName("DeleteImgConfirmed")]
-        [ValidateAntiForgeryToken]
-        public IActionResult DeleteImgConfirmed(string fileName, int id)
+        // Fjerner de boards fra listen boards, som allerede er lejet af en anden. 
+        // og returnere listen som IQueryable<Boards>
+        private static IQueryable<Board> RemoveBoardsRentedByOthers(List<Board> boards, string userId)
         {
-            string rootPath = _webHostEnvironment.WebRootPath;
+            // Opret en liste til at holde de boards, der skal fjernes
+            var boardsToRemove = new List<Board>();
 
-            var filePath = Path.Combine(rootPath + "/Images/" + id, fileName);
+            foreach (var board in boards)
+            {
+                foreach (var renting in board.Rentings)
+                {
+                    if (renting.SurfsUpUserId != userId || userId == null)
+                    {
+                        if (DateTime.Now > renting.StartDate && DateTime.Now < renting.EndDate)
+                        {
+                            // Tilføj dette board til listen over boards, der skal fjernes
+                            boardsToRemove.Add(board);
+                            break; // Du kan bryde ud af den indre løkke, når en leasing er fundet
+                        }
+                    }
+                }
+            }
 
-            System.IO.File.Delete(filePath);
+            // Fjern de boards, der er markeret til fjernelse
+            foreach (var boardToRemove in boardsToRemove)
+            {
+                boards.Remove(boardToRemove);
+            }
 
-            return RedirectToAction(nameof(Edit), new { id = id });
+            return boards.AsQueryable();
+        }
+
+        // Hvis en bestemt property(selectedProperty) er valgt ved søgefeltet, 
+        // laver MakeNewListFilteredByProperty en ny liste hvor den filtrerer 
+        // så det kun er boards med den property der kommer med, derefter 
+        // yderligere filtrering med searchString hvis der også er skrevet noget i den.
+        // Returnerer en liste af boards
+        private static List<Board> MakeNewListFilteredByProperty(IQueryable<Board> boards, string selectedProperty, string searchString)
+        {
+            var searchBoards = new List<Board>();
+            // tjekker alle boards
+            foreach (Board board in boards)
+            {
+                // board.GetType() kunne også være typeof(Board) får et Type objekt af Board,
+                // som vi kan kalde GetProperty(selectedProperty) på som får propertyInfo for den selectedProperty 
+                // som er valgt af brugeren.
+                PropertyInfo propertyInfo = board.GetType().GetProperty(selectedProperty);
+                if (propertyInfo != null)
+                {
+                    // får den specifikke værdi af propertien som blev valgt for det board vi tjekker.
+                    object propertyValue = propertyInfo.GetValue(board);
+
+                    // ser om boardet har en værdi for den Property
+                    if (propertyValue != null)
+                    {
+                        if (!String.IsNullOrEmpty(searchString))
+                        {
+                            // hvis brugeren også har skrevet noget i searchstring, 
+                            // tjekkes om property værdien indeholder searchstring
+                            if (propertyValue.ToString().ToLower().Contains(searchString))
+                            {
+                                // hvis den gør, tilføjes boardet.
+                                searchBoards.Add(board);
+                            }
+                        }
+                        // hvis ik searchstring er noget, tilføjes boardet hvis
+                        // den har en værdi for den valgte property
+                        else
+                        {
+                            searchBoards.Add(board);
+                        }
+                    }
+                }
+            }
+
+            return searchBoards;
         }
     }
 }

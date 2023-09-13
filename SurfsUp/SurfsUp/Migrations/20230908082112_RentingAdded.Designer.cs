@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SurfsUp.Data;
 
@@ -11,9 +12,10 @@ using SurfsUp.Data;
 namespace SurfsUp.Migrations
 {
     [DbContext(typeof(SurfsUpContext))]
-    partial class SurfsUpContextModelSnapshot : ModelSnapshot
+    [Migration("20230908082112_RentingAdded")]
+    partial class RentingAdded
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -263,29 +265,7 @@ namespace SurfsUp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Boards");
-                });
-
-            modelBuilder.Entity("SurfsUp.Models.Image", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<int>("BoardId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Path")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BoardId");
-
-                    b.ToTable("Images");
+                    b.ToTable("Board");
                 });
 
             modelBuilder.Entity("SurfsUp.Models.Renting", b =>
@@ -311,9 +291,11 @@ namespace SurfsUp.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BoardId");
+                    b.HasIndex("BoardId")
+                        .IsUnique();
 
-                    b.HasIndex("SurfsUpUserId");
+                    b.HasIndex("SurfsUpUserId")
+                        .IsUnique();
 
                     b.ToTable("Renting");
                 });
@@ -369,28 +351,17 @@ namespace SurfsUp.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("SurfsUp.Models.Image", b =>
-                {
-                    b.HasOne("SurfsUp.Models.Board", "Board")
-                        .WithMany("Images")
-                        .HasForeignKey("BoardId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Board");
-                });
-
             modelBuilder.Entity("SurfsUp.Models.Renting", b =>
                 {
                     b.HasOne("SurfsUp.Models.Board", "Board")
-                        .WithMany("Rentings")
-                        .HasForeignKey("BoardId")
+                        .WithOne("Renting")
+                        .HasForeignKey("SurfsUp.Models.Renting", "BoardId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("SurfsUp.Areas.Identity.Data.SurfsUpUser", "SurfsUpUser")
-                        .WithMany("Rentings")
-                        .HasForeignKey("SurfsUpUserId")
+                        .WithOne("Renting")
+                        .HasForeignKey("SurfsUp.Models.Renting", "SurfsUpUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -401,14 +372,14 @@ namespace SurfsUp.Migrations
 
             modelBuilder.Entity("SurfsUp.Areas.Identity.Data.SurfsUpUser", b =>
                 {
-                    b.Navigation("Rentings");
+                    b.Navigation("Renting")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("SurfsUp.Models.Board", b =>
                 {
-                    b.Navigation("Images");
-
-                    b.Navigation("Rentings");
+                    b.Navigation("Renting")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

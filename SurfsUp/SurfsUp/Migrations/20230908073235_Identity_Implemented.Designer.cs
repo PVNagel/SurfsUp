@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SurfsUp.Data;
 
@@ -11,9 +12,10 @@ using SurfsUp.Data;
 namespace SurfsUp.Migrations
 {
     [DbContext(typeof(SurfsUpContext))]
-    partial class SurfsUpContextModelSnapshot : ModelSnapshot
+    [Migration("20230908073235_Identity_Implemented")]
+    partial class Identity_Implemented
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -263,59 +265,7 @@ namespace SurfsUp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Boards");
-                });
-
-            modelBuilder.Entity("SurfsUp.Models.Image", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<int>("BoardId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Path")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BoardId");
-
-                    b.ToTable("Images");
-                });
-
-            modelBuilder.Entity("SurfsUp.Models.Renting", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<int>("BoardId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("EndDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("SurfsUpUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BoardId");
-
-                    b.HasIndex("SurfsUpUserId");
-
-                    b.ToTable("Renting");
+                    b.ToTable("Board");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -367,48 +317,6 @@ namespace SurfsUp.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("SurfsUp.Models.Image", b =>
-                {
-                    b.HasOne("SurfsUp.Models.Board", "Board")
-                        .WithMany("Images")
-                        .HasForeignKey("BoardId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Board");
-                });
-
-            modelBuilder.Entity("SurfsUp.Models.Renting", b =>
-                {
-                    b.HasOne("SurfsUp.Models.Board", "Board")
-                        .WithMany("Rentings")
-                        .HasForeignKey("BoardId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SurfsUp.Areas.Identity.Data.SurfsUpUser", "SurfsUpUser")
-                        .WithMany("Rentings")
-                        .HasForeignKey("SurfsUpUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Board");
-
-                    b.Navigation("SurfsUpUser");
-                });
-
-            modelBuilder.Entity("SurfsUp.Areas.Identity.Data.SurfsUpUser", b =>
-                {
-                    b.Navigation("Rentings");
-                });
-
-            modelBuilder.Entity("SurfsUp.Models.Board", b =>
-                {
-                    b.Navigation("Images");
-
-                    b.Navigation("Rentings");
                 });
 #pragma warning restore 612, 618
         }

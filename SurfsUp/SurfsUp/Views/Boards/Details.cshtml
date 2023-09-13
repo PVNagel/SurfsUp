@@ -60,10 +60,19 @@
             <dd class="col-sm-10">
                 @Html.DisplayFor(model => model.Equipment)
             </dd>
-            
         </dl>
         <div style="float: left;">
-            <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
+
+
+                <a asp-action="Create" asp-controller="Rentings" asp-route-boardId="@Model?.Id">Rent</a>
+
+
+        @if (Context.User.IsInRole("Admin"))
+        {
+            <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a>
+ 
+        }
+
             <a asp-action="Index">Back to List</a>
         </div>
 
@@ -72,11 +81,11 @@
 
         
 
-        @if (Model.Attachments != null)
+        @if (Model.Images != null)
         {
-            @foreach (IFormFile file in Model.Attachments)
+            @foreach (Image image in Model.Images)
             {
-                <img alt="test" style="float:left; height: 200px; width: 200px" src="@($"/Images/{Model.Id}/" + file.FileName)" />
+                <img alt="test" style="float:left; height: 200px; width: 200px" src="@image.Path" />
             }
         }
 
