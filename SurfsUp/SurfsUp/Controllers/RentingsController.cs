@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using SurfsUp.Areas.Identity.Data;
 using SurfsUp.Data;
 using SurfsUp.Models;
+using SurfsUp.Services;
 
 namespace SurfsUp.Controllers
 {
@@ -63,6 +64,12 @@ namespace SurfsUp.Controllers
         {
             var board = await _context.Boards.FindAsync(boardId);
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            RentingQueueService.AddPosition(new RentingQueuePosition()
+            {
+                SurfsUpUserId = userId,
+                QueueJoined = DateTime.Now,
+                BoardId = boardId
+            });
             var renting = new Renting { BoardId = boardId, SurfsUpUserId = userId, EndDate = DateTime.Now };
             ViewData["BoardName"] = board.Name;
             return View(renting);
@@ -92,8 +99,24 @@ namespace SurfsUp.Controllers
                             return View(renting);
                         }
                     }
+
+                    if (!RentingQueueService.IsFirstPosition(RentingQueueService.GetPosition(renting.SurfsUpUserId)))
+                    {
+                        ModelState.AddModelError(string.Empty,
+                            "Unable to create new renting because another user is currently infront of you in the queue");
+                        return View(renting);
+                    }
+
+                    if (RentingQueueService.RemovePosition(renting.SurfsUpUserId))
+                    {
+                        ModelState.AddModelError(string.Empty,
+                            "Unable to remove you from the renting queue, please try again.");
+                        return View(renting);
+                    }
+
                     _context.Add(renting);
                     await _context.SaveChangesAsync();
+
                     return RedirectToAction(nameof(Index));
                 }
                 return View(renting);
