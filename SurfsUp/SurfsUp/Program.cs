@@ -91,7 +91,27 @@ using (var scope = app.Services.CreateScope())
     string email = "admin@admin.com";
     string password = "Password123.";
 
-    if(await userManager.FindByEmailAsync(email) == null)
+    if (await userManager.FindByEmailAsync(email) == null)
+    {
+        var user = new SurfsUpUser();
+        user.UserName = email;
+        user.Email = email;
+        user.EmailConfirmed = true;
+
+        await userManager.CreateAsync(user, password);
+
+        await userManager.AddToRoleAsync(user, "Admin");
+    }
+}
+
+using (var scope = app.Services.CreateScope())
+{
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<SurfsUpUser>>();
+
+    string email = "admin@admin.com";
+    string password = "Password123.";
+
+    if (await userManager.FindByEmailAsync(email) == null)
     {
         var user = new SurfsUpUser();
         user.UserName = email;
