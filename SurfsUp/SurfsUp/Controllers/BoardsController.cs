@@ -261,7 +261,7 @@ namespace SurfsUp.Controllers
             }
 
             var boardToUpdate = await _context.Boards.FirstOrDefaultAsync(b => b.Id == id);
-
+            // Denne funktion tjekker om et board er blevet deleted, imens en anden er igang med at ændre det
             if (boardToUpdate == null)
             {
                 Board deletedBoard = new Board();
@@ -272,7 +272,8 @@ namespace SurfsUp.Controllers
             }
 
             _context.Entry(boardToUpdate).Property("RowVersion").OriginalValue = rowVersion;
-
+            // Denne lage if sætning tjekker om nogle af boardes properties er blevet ændret i edit.
+            // Den thrower en exception hvis en prøver at save, når en anden bruger har gjort det først.
             if (await TryUpdateModelAsync<Board>(
                boardToUpdate,
                "",
