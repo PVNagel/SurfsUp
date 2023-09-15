@@ -221,8 +221,9 @@ namespace SurfsUp.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        //Bliver kaldt fra userLeavesRentingPage.js i /renting/create view, hvis man går væk fra siden uden at trykke create
         [HttpPost]
-        //[ValidateAntiForgeryToken]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> RemoveQueuePosition()
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;

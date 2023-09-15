@@ -7,16 +7,13 @@ document.getElementById('submit').addEventListener('click', function () {
 
 const beforeUnloadListener = (event) => {
     if (!submitClicked) {
-        var data = {
-            __RequestVerificationToken: antiForgeryToken
-        };
 
         fetch("/Rentings/RemoveQueuePosition", {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': antiForgeryToken
+            }
         })
             .then(response => {
                 if (!response.ok) {
@@ -32,4 +29,5 @@ const beforeUnloadListener = (event) => {
             });
     }
 };
+
 window.addEventListener("beforeunload", beforeUnloadListener);
