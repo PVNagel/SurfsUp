@@ -33,6 +33,9 @@ namespace SurfsUp.Models
         [DataType(DataType.Text)]
         public string? Equipment { get; set; }
 
+        [Timestamp]
+        public byte[] RowVersion { get; set; }
+
         // et board kan have mange rentings og en renting kan kun have 1 board. en-til-mange db relation
         public ICollection<Renting>? Rentings { get; set; }
         // et board kan have mange images og et image kan kun have 1 board. en-til-mange db relation
