@@ -272,7 +272,7 @@ namespace SurfsUp.Controllers
             }
 
             _context.Entry(boardToUpdate).Property("RowVersion").OriginalValue = rowVersion;
-            // Denne lage if sætning tjekker om nogle af boardes properties er blevet ændret i edit.
+            // Denne lange if sætning tjekker om nogle af boardes properties er blevet ændret i edit.
             // Den thrower en exception hvis en prøver at save, når en anden bruger har gjort det først.
             if (await TryUpdateModelAsync<Board>(
                boardToUpdate,
