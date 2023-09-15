@@ -262,6 +262,14 @@ namespace SurfsUp.Controllers
 
             var boardToUpdate = await _context.Boards.FirstOrDefaultAsync(b => b.Id == id);
 
+            if (boardToUpdate == null)
+            {
+                Board deletedBoard = new Board();
+                await TryUpdateModelAsync(deletedBoard);
+                ModelState.AddModelError(string.Empty,
+                    "Unable to save changes. The board was deleted by another user.");
+                return View(deletedBoard);
+            }
 
             _context.Entry(boardToUpdate).Property("RowVersion").OriginalValue = rowVersion;
 
@@ -280,13 +288,7 @@ namespace SurfsUp.Controllers
                     var exceptionEntry = ex.Entries.Single();
                     var clientValues = (Board)exceptionEntry.Entity;
                     var databaseEntry = exceptionEntry.GetDatabaseValues();
-                    if (databaseEntry == null)
-                    {
-                        ModelState.AddModelError(string.Empty,
-                            "Unable to save changes. The department was deleted by another user.");
-                    }
-                    else
-                    {
+                    
                         var databaseValues = (Board)databaseEntry.ToObject();
 
                         if (databaseValues.Name != clientValues.Name)
@@ -336,7 +338,7 @@ namespace SurfsUp.Controllers
                                 + "the Save button again. Otherwise click the Back to List hyperlink.");
                         boardToUpdate.RowVersion = (byte[])databaseValues.RowVersion;
                         ModelState.Remove("RowVersion");
-                    }
+                    
                 }
             }
 
