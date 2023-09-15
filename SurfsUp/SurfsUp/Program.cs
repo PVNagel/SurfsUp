@@ -20,6 +20,7 @@ builder.Services.AddScoped<ImageService>();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddAntiforgery();
 
 var app = builder.Build();
 using (var scope = app.Services.CreateScope())

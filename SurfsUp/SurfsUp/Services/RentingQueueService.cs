@@ -17,11 +17,6 @@ namespace SurfsUp.Services
             return rentingQueuePositions.FirstOrDefault(x => x.SurfsUpUserId == userId);
         }
 
-        public static IEnumerable<RentingQueuePosition> GetRentingQueuePositions(int boardId)
-        {
-            return rentingQueuePositions.Where(x => x.BoardId == boardId);
-        }
-
         public static bool RemovePosition(string surfsUpUserId)
         {
             var position = rentingQueuePositions.FirstOrDefault(x => x.SurfsUpUserId == surfsUpUserId);

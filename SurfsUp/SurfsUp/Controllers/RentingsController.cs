@@ -107,7 +107,7 @@ namespace SurfsUp.Controllers
                         return View(renting);
                     }
 
-                    if (RentingQueueService.RemovePosition(renting.SurfsUpUserId))
+                    if (!RentingQueueService.RemovePosition(renting.SurfsUpUserId))
                     {
                         ModelState.AddModelError(string.Empty,
                             "Unable to remove you from the renting queue, please try again.");
@@ -219,6 +219,18 @@ namespace SurfsUp.Controllers
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        //[ValidateAntiForgeryToken]
+        public async Task<IActionResult> RemoveQueuePosition()
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            if (RentingQueueService.RemovePosition(userId))
+            {
+                return Ok(new { Message = "Anmodningen blev behandlet med succes." });
+            }
+            return BadRequest(new { Message = "Anmodningen kunne ikke fuldføres."});
         }
 
         private bool RentingExists(int id)
