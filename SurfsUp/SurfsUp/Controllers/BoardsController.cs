@@ -75,6 +75,11 @@ namespace SurfsUp.Controllers
             
             ViewData["CurrentFilter"] = searchString;
 
+            if(selectedProperty != null)
+            {
+                ViewData["selectedProperty"] = selectedProperty;
+            }
+
             // User er et ClaimsPrincipal objekt, som indeholder information om den nuværende bruger.
             string userId = null;
             if (User.Identity.IsAuthenticated)
@@ -144,8 +149,10 @@ namespace SurfsUp.Controllers
                 // CreateAsync laver en ny paginatedList med de parametre vi giver.
                 var paginatedList = await PaginatedList<Board>.CreateAsync(searchBoards, pageNumber ?? 1, pageSize);
                 return View(paginatedList);
+
+
             }
-            
+
             if (!String.IsNullOrEmpty(searchString))
             {
                 var searchBoards = boards.ToList();

@@ -3,6 +3,7 @@
 
 @{
     ViewData["Title"] = "Index";
+    var selectedProp = ViewBag.selectedProperty;
 }
 
 <h1>Index</h1>
@@ -21,7 +22,13 @@
         <input type="submit" value="Search" />
 
         <select id="selectedProperty" name="selectedProperty" class="form-control" style="height:30px; width:200px; float: left; font-size:12px; font-weight:500; text-align:center; border-color:black; margin-right:10px">
-            <option value="">-- Select a property --</option>
+            @if(selectedProp == null || selectedProp == "")
+            {
+                <option selected="selected" value="">-- Select a property --</option>
+            }else
+            {
+                <option selected="selected" value="@ViewData["selectedProperty"]">@selectedProp</option>
+            }
             @foreach (var property in (SelectList)ViewBag.PropertyList)
             {
                 <option value="@property.Value">@property.Text</option>
@@ -40,30 +47,37 @@
         <tr>
             <th>
                 <a asp-action="Index" asp-route-sortOrder="@ViewData["NameSortParm"]"
+                    asp-route-selectedProperty="@ViewData["selectedProperty"]"
                    asp-route-searchString="@ViewData["CurrentFilter"]">Name</a>
             </th>
             <th>
                 <a asp-action="Index" asp-route-sortOrder="@ViewData["LengthSortParm"]"
+                   asp-route-selectedProperty="@ViewData["selectedProperty"]"
                    asp-route-searchString="@ViewData["CurrentFilter"]"> Length</a>
             </th>
             <th>
                 <a asp-action="Index" asp-route-sortOrder="@ViewData["WidthSortParm"]"
+                   asp-route-selectedProperty="@ViewData["selectedProperty"]"
                    asp-route-searchString="@ViewData["CurrentFilter"]"> Width</a>
             </th>
             <th>
                 <a asp-action="Index" asp-route-sortOrder="@ViewData["ThicknessSortParm"]"
+                   asp-route-selectedProperty="@ViewData["selectedProperty"]"
                    asp-route-searchString="@ViewData["CurrentFilter"]"> Thickness</a>
             </th>
             <th>
                 <a asp-action="Index" asp-route-sortOrder="@ViewData["TypeSortParm"]"
+                   asp-route-selectedProperty="@ViewData["selectedProperty"]"
                    asp-route-searchString="@ViewData["CurrentFilter"]"> Type</a>
             </th>
             <th>
                 <a asp-action="Index" asp-route-sortOrder="@ViewData["VolumeSortParm"]"
+                   asp-route-selectedProperty="@ViewData["selectedProperty"]"
                    asp-route-searchString="@ViewData["CurrentFilter"]"> Volume</a>
             </th>
             <th>
                 <a asp-action="Index" asp-route-sortOrder="@ViewData["PriceSortParm"]"
+                   asp-route-selectedProperty="@ViewData["selectedProperty"]"
                    asp-route-searchString="@ViewData["CurrentFilter"]"> Price</a>
             </th>
             <th>
