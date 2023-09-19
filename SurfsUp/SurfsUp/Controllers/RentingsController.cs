@@ -100,6 +100,14 @@ namespace SurfsUp.Controllers
                         }
                     }
 
+                    if (renting.EndDate < renting.StartDate.AddMinutes(55))
+                    {
+                        ModelState.AddModelError(string.Empty,
+                           "An end date is required that is atleast 1 hour long");
+                        return View(renting);
+                    }
+
+
                     if (!RentingQueueService.IsFirstPosition(RentingQueueService.GetPosition(renting.SurfsUpUserId)))
                     {
                         ModelState.AddModelError(string.Empty,
@@ -114,6 +122,7 @@ namespace SurfsUp.Controllers
                         return View(renting);
                     }
 
+                  
                     _context.Add(renting);
                     await _context.SaveChangesAsync();
 
