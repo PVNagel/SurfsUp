@@ -27,10 +27,14 @@ namespace SurfsUp.Services
         {
             foreach (var p in rentingQueuePositions)
             {
-                if (position.QueueJoined > p.QueueJoined)
+                if(p.BoardId == position.BoardId)
                 {
-                    return false;
+                    if (position.QueueJoined > p.QueueJoined)
+                    {
+                        return false;
+                    }
                 }
+
             }
             return true;
         }
