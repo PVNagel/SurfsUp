@@ -289,6 +289,15 @@ namespace SurfsUp.Controllers
                 try
                 {
                     await _context.SaveChangesAsync();
+
+                    if (attachments != null)
+                    {
+                        // _imageService er en service vi har lavet som håndtere alt med images.
+                        // SaveImages Gemmer et image objekt i databasen som har en relation til et
+                        // board via boardId, samt et image path. billedfilerne gemmes i wwwroot
+                        await _imageService.SaveImages(id, attachments);
+                    }
+
                     return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException ex)
@@ -350,38 +359,6 @@ namespace SurfsUp.Controllers
                 }
             }
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(id);
-                    await _context.SaveChangesAsync();
-
-                    if (attachments != null)
-                    {
-                        // _imageService er en service vi har lavet som håndtere alt med images.
-                        // SaveImages Gemmer et image objekt i databasen som har en relation til et
-                        // board via boardId, samt et image path. billedfilerne gemmes i wwwroot
-                        await _imageService.SaveImages(id, attachments);
-                    }
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!BoardExists(id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-
-          
-
-           
             return View(boardToUpdate);
         }
 
