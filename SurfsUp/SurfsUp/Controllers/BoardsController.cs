@@ -75,6 +75,11 @@ namespace SurfsUp.Controllers
             
             ViewData["CurrentFilter"] = searchString;
 
+            if(selectedProperty != null)
+            {
+                ViewData["selectedProperty"] = selectedProperty;
+            }
+
             // User er et ClaimsPrincipal objekt, som indeholder information om den nuværende bruger.
             string userId = null;
             if (User.Identity.IsAuthenticated)
@@ -144,8 +149,10 @@ namespace SurfsUp.Controllers
                 // CreateAsync laver en ny paginatedList med de parametre vi giver.
                 var paginatedList = await PaginatedList<Board>.CreateAsync(searchBoards, pageNumber ?? 1, pageSize);
                 return View(paginatedList);
+
+
             }
-            
+
             if (!String.IsNullOrEmpty(searchString))
             {
                 var searchBoards = boards.ToList();
@@ -226,6 +233,8 @@ namespace SurfsUp.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
+
+           
             if (id == null || _context.Boards == null)
             {
                 return NotFound();
@@ -233,6 +242,7 @@ namespace SurfsUp.Controllers
 
             var board = await _context.Boards
                 .Include(x => x.Images)
+                .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.Id == id);
             if (board == null)
             {
@@ -250,18 +260,34 @@ namespace SurfsUp.Controllers
         [Authorize(Roles = "Admin")]                                                                                                    // attachments er ikke længere en del af board,
                                                                                                                                         // da det gav mere mening at de er adskilt og board kun har en 
                                                                                                                                         // Property der hedder Images
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Length,Width,Thickness,Volume,Type,Price,Equipment")] Board board, IList<IFormFile>? attachments)
+        public async Task<IActionResult> Edit(int id, IList<IFormFile>? attachments, byte[] rowVersion)
         {
-            if (id != board.Id)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            var boardToUpdate = await _context.Boards.FirstOrDefaultAsync(b => b.Id == id);
+            // Denne funktion tjekker om et board er blevet deleted, imens en anden er igang med at ændre det
+            if (boardToUpdate == null)
+            {
+                Board deletedBoard = new Board();
+                await TryUpdateModelAsync(deletedBoard);
+                ModelState.AddModelError(string.Empty,
+                    "Unable to save changes. The board was deleted by another user.");
+                return View(deletedBoard);
+            }
+
+            _context.Entry(boardToUpdate).Property("RowVersion").OriginalValue = rowVersion;
+            // Denne lange if sætning tjekker om nogle af boardes properties er blevet ændret i edit.
+            // Den thrower en exception hvis en prøver at save, når en anden bruger har gjort det først.
+            if (await TryUpdateModelAsync<Board>(
+               boardToUpdate,
+               "",
+               b => b.Name, b => b.Length, b => b.Width, b => b.Thickness, b => b.Volume, b => b.Type, b => b.Price, b => b.Equipment, b => b.Images))
             {
                 try
                 {
-                    _context.Update(board);
                     await _context.SaveChangesAsync();
 
                     if (attachments != null)
@@ -271,21 +297,69 @@ namespace SurfsUp.Controllers
                         // board via boardId, samt et image path. billedfilerne gemmes i wwwroot
                         await _imageService.SaveImages(id, attachments);
                     }
+
+                    return RedirectToAction(nameof(Index));
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (DbUpdateConcurrencyException ex)
                 {
-                    if (!BoardExists(board.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    var exceptionEntry = ex.Entries.Single();
+                    var clientValues = (Board)exceptionEntry.Entity;
+                    var databaseEntry = exceptionEntry.GetDatabaseValues();
+                    
+                        var databaseValues = (Board)databaseEntry.ToObject();
+
+                        if (databaseValues.Name != clientValues.Name)
+                        {
+                            ModelState.AddModelError("Name", $"Current value: {databaseValues.Name}");
+                        }
+                        if (databaseValues.Length != clientValues.Length)
+                        {
+                            ModelState.AddModelError("Length", $"Current value: {databaseValues.Length:c}");
+                        }
+                        if (databaseValues.Width != clientValues.Width)
+                        {
+                            ModelState.AddModelError("Width", $"Current value: {databaseValues.Width:d}");
+                        }
+                        if (databaseValues.Thickness != clientValues.Thickness)
+                        {
+                            ModelState.AddModelError("Thickness", $"Current value: {databaseValues.Thickness:d}");
+
+                        }
+                        if (databaseValues.Volume != clientValues.Volume)
+                        {
+                            ModelState.AddModelError("Volume", $"Current value: {databaseValues.Volume:d}");
+
+                        }
+                        if (databaseValues.Type != clientValues.Type)
+                        {
+                            ModelState.AddModelError("Type", $"Current value: {databaseValues.Type:d}");
+
+                        }
+                        if (databaseValues.Price != clientValues.Price)
+                        {
+                            ModelState.AddModelError("Price", $"Current value: {databaseValues.Price:d}");
+
+                        }
+                        if (databaseValues.Equipment != clientValues.Equipment)
+                        {
+                            ModelState.AddModelError("Equipment", $"Current value: {databaseValues.Equipment:d}");
+                        }
+                        if (databaseValues.Images != clientValues.Images)
+                        {
+                            ModelState.AddModelError("Images", $"Current value: {databaseValues.Images:d}");
+                        }
+                        ModelState.AddModelError(string.Empty, "The board you attempted to edit "
+                                + "was modified by another user after you got the original value. The "
+                                + "edit operation was canceled and the current values in the database "
+                                + "have been displayed. If you still want to edit this record, click "
+                                + "the Save button again. Otherwise click the Back to List hyperlink.");
+                        boardToUpdate.RowVersion = (byte[])databaseValues.RowVersion;
+                        ModelState.Remove("RowVersion");
+                    
                 }
-                return RedirectToAction(nameof(Index));
             }
-            return View(board);
+
+            return View(boardToUpdate);
         }
 
         // GET: Boards/Delete/5

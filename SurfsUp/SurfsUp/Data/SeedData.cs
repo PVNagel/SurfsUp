@@ -1,21 +1,63 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using SurfsUp.Areas.Identity.Data;
 using SurfsUp.Models;
 using System;
 using System.Linq;
+using static System.Formats.Asn1.AsnWriter;
 
 namespace SurfsUp.Data
 {
     public static class SeedData
     {
-        public static void Initialize(IServiceProvider serviceProvider)
+        public static void SeedRoles(RoleManager<IdentityRole> roleManager)
         {
-            using (var context = new SurfsUpContext(
-                serviceProvider.GetRequiredService<
-                    DbContextOptions<SurfsUpContext>>()))
+            var roles = new[] { "Admin" };
+
+            foreach (var role in roles)
             {
+                if (!roleManager.RoleExistsAsync(role).Result)
+                    roleManager.CreateAsync(new IdentityRole(role)).Wait();
+            }
+        }
+
+        public static void SeedUsers(UserManager<SurfsUpUser> userManager) 
+        {
+            string email = "admin@admin.com";
+            string password = "Password123.";
+
+            if (userManager.FindByEmailAsync(email).Result == null)
+            {
+                var user = new SurfsUpUser();
+                user.UserName = email;
+                user.Email = email;
+                user.EmailConfirmed = true;
+
+                userManager.CreateAsync(user, password).Wait();
+                userManager.AddToRoleAsync(user, "Admin").Wait();
+            }
+
+            string email2 = "admin2@admin2.com";
+            string password2 = "Password1234.";
+
+            if (userManager.FindByEmailAsync(email2).Result == null)
+            {
+                var user2 = new SurfsUpUser();
+                user2.UserName = email2;
+                user2.Email = email2;
+                user2.EmailConfirmed = true;
+
+                userManager.CreateAsync(user2, password2).Wait();
+                userManager.AddToRoleAsync(user2, "Admin").Wait();
+            }
+        }
+
+        public static void Initialize(SurfsUpContext context)
+        {
+           
                 if (!context.Boards.Any())
                 {
                     // Seeder boards ind
@@ -197,7 +239,7 @@ namespace SurfsUp.Data
                     });
                     context.SaveChanges();
                 }
-            }
+            
         }
     }
 }

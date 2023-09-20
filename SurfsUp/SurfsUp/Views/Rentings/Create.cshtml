@@ -25,7 +25,7 @@
                 <span asp-validation-for="EndDate" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+                <input type="submit" value="Create" id="submit" class="btn btn-primary" />
             </div>
             
         </form>
@@ -35,6 +35,7 @@
     <a asp-controller="Boards" asp-action="Details" asp-route-id="@Model.BoardId" >Back to Board</a>
 </div>
 
+<script src="~/js/userLeavesRentingPage.js"></script>
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
