@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 
-namespace SurfsUp.Models
+namespace SurfsUpClassLibrary.Models
 {
     public class PaginatedList<T> : List<T>
     {

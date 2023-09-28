@@ -3,7 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.3.32825.248
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SurfsUp", "SurfsUp\SurfsUp.csproj", "{6E85A476-E78A-4906-945B-5D5EDFF579B8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SurfsUp", "SurfsUp\SurfsUp.csproj", "{6E85A476-E78A-4906-945B-5D5EDFF579B8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SurfsUpAPI", "SurfsUpAPI\SurfsUpAPI.csproj", "{61A8D758-C004-4A33-AC88-698B4C8E7D50}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SurfsUpClassLibrary", "SurfsUpClassLibrary\SurfsUpClassLibrary.csproj", "{8A122872-CDBD-4070-A560-556072E1FC2D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SurfsUpUnitTest", "SurfsUpUnitTest\SurfsUpUnitTest.csproj", "{DB721257-577A-416D-BBC5-F0505C377CB9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +21,18 @@ Global
 		{6E85A476-E78A-4906-945B-5D5EDFF579B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6E85A476-E78A-4906-945B-5D5EDFF579B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6E85A476-E78A-4906-945B-5D5EDFF579B8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{61A8D758-C004-4A33-AC88-698B4C8E7D50}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{61A8D758-C004-4A33-AC88-698B4C8E7D50}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{61A8D758-C004-4A33-AC88-698B4C8E7D50}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{61A8D758-C004-4A33-AC88-698B4C8E7D50}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A122872-CDBD-4070-A560-556072E1FC2D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A122872-CDBD-4070-A560-556072E1FC2D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A122872-CDBD-4070-A560-556072E1FC2D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A122872-CDBD-4070-A560-556072E1FC2D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DB721257-577A-416D-BBC5-F0505C377CB9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DB721257-577A-416D-BBC5-F0505C377CB9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DB721257-577A-416D-BBC5-F0505C377CB9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DB721257-577A-416D-BBC5-F0505C377CB9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

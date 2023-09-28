@@ -1,4 +1,4 @@
-﻿using SurfsUp.Models;
+﻿using SurfsUpClassLibrary.Models;
 using System.Collections.Concurrent;
 
 namespace SurfsUp.Services

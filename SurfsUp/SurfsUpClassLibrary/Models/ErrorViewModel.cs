@@ -1,4 +1,4 @@
-namespace SurfsUp.Models
+namespace SurfsUpClassLibrary.Models
 {
     public class ErrorViewModel
     {

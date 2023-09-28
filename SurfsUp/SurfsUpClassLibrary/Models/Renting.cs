@@ -1,7 +1,7 @@
-﻿using SurfsUp.Areas.Identity.Data;
+﻿using SurfsUpClassLibrary.Models;
 using System.ComponentModel.DataAnnotations;
 
-namespace SurfsUp.Models
+namespace SurfsUpClassLibrary.Models
 {
     public class Renting
     {

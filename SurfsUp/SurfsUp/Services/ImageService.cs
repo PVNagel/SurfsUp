@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SurfsUp.Data;
-using SurfsUp.Models;
+using SurfsUpClassLibrary.Models;
 
 namespace SurfsUp.Services
 {

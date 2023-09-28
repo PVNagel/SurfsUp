@@ -8,9 +8,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using SurfsUp.Areas.Identity.Data;
 using SurfsUp.Data;
-using SurfsUp.Models;
+using SurfsUpClassLibrary.Models;
 using SurfsUp.Services;
 
 namespace SurfsUp.Controllers

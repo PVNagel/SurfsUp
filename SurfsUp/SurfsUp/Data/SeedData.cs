@@ -3,8 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using SurfsUp.Areas.Identity.Data;
-using SurfsUp.Models;
+using SurfsUpClassLibrary.Models;
 using System;
 using System.Linq;
 using static System.Formats.Asn1.AsnWriter;
@@ -70,7 +69,7 @@ namespace SurfsUp.Data
                             Width = 21,
                             Thickness = 2.75,
                             Volume = 38.8,
-                            Type = Models.TypeEnum.Shortboard,
+                            Type = TypeEnum.Shortboard,
                             Price = 565,
                             Equipment = null
                         },
@@ -81,7 +80,7 @@ namespace SurfsUp.Data
                             Width = 21.75,
                             Thickness = 2.75,
                             Volume = 44.16,
-                            Type = Models.TypeEnum.Funboard,
+                            Type = TypeEnum.Funboard,
                             Price = 685,
                             Equipment = null
                         },
@@ -92,7 +91,7 @@ namespace SurfsUp.Data
                             Width = 21.85,
                             Thickness = 2.9,
                             Volume = 43.22,
-                            Type = Models.TypeEnum.Funboard,
+                            Type = TypeEnum.Funboard,
                             Price = 695,
                             Equipment = null
                         },
@@ -103,7 +102,7 @@ namespace SurfsUp.Data
                             Width = 20.75,
                             Thickness = 2.3,
                             Volume = 29.39,
-                            Type = Models.TypeEnum.Fish,
+                            Type = TypeEnum.Fish,
                             Price = 645,
                             Equipment = null
                         },
@@ -114,7 +113,7 @@ namespace SurfsUp.Data
                             Width = 22.8,
                             Thickness = 2.8,
                             Volume = 65.4,
-                            Type = Models.TypeEnum.Longboard,
+                            Type = TypeEnum.Longboard,
                             Price = 895,
                             Equipment = null
                         },
@@ -125,7 +124,7 @@ namespace SurfsUp.Data
                             Width = 21,
                             Thickness = 2.5,
                             Volume = 33.7,
-                            Type = Models.TypeEnum.Shortboard,
+                            Type = TypeEnum.Shortboard,
                             Price = 645,
                             Equipment = null
                         },
@@ -136,7 +135,7 @@ namespace SurfsUp.Data
                             Width = 19.4,
                             Thickness = 3,
                             Volume = 80,
-                            Type = Models.TypeEnum.Longboard,
+                            Type = TypeEnum.Longboard,
                             Price = 1025,
                             Equipment = null
                         },
@@ -147,7 +146,7 @@ namespace SurfsUp.Data
                             Width = 30,
                             Thickness = 6,
                             Volume = 301,
-                            Type = Models.TypeEnum.SUP,
+                            Type = TypeEnum.SUP,
                             Price = 854,
                             Equipment = "Paddle"
                         },
@@ -158,7 +157,7 @@ namespace SurfsUp.Data
                             Width = 32,
                             Thickness = 6,
                             Volume = 270,
-                            Type = Models.TypeEnum.SUP,
+                            Type = TypeEnum.SUP,
                             Price = 611,
                             Equipment = "Fin, Paddle, Pump, Leash"
                         },
@@ -169,7 +168,7 @@ namespace SurfsUp.Data
                             Width = 25,
                             Thickness = 6,
                             Volume = 330,
-                            Type = Models.TypeEnum.SUP,
+                            Type = TypeEnum.SUP,
                             Price = 1304,
                             Equipment = "Fin, Paddle, Pump, Leash"
                         }

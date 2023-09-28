@@ -1,9 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using static System.Net.WebRequestMethods;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 
-namespace SurfsUp.Models
+namespace SurfsUpClassLibrary.Models
 {
     public class Board
     {

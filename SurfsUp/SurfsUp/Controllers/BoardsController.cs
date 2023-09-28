@@ -16,9 +16,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using SurfsUp.Areas.Identity.Data;
 using SurfsUp.Data;
-using SurfsUp.Models;
+using SurfsUpClassLibrary.Models;
 using SurfsUp.Services;
 
 namespace SurfsUp.Controllers
