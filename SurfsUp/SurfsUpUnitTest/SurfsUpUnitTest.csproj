@@ -10,9 +10,16 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
+    <PackageReference Include="Moq" Version="4.20.69" />
     <PackageReference Include="MSTest.TestAdapter" Version="2.2.8" />
     <PackageReference Include="MSTest.TestFramework" Version="2.2.8" />
     <PackageReference Include="coverlet.collector" Version="3.1.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SurfsUpAPI\SurfsUpAPI.csproj" />
+    <ProjectReference Include="..\SurfsUpClassLibrary\SurfsUpClassLibrary.csproj" />
+    <ProjectReference Include="..\SurfsUp\SurfsUp.csproj" />
   </ItemGroup>
 
 </Project>

@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SurfsUpClassLibrary\SurfsUpClassLibrary.csproj" />
+    <ProjectReference Include="..\SurfsUp\SurfsUp.csproj" />
   </ItemGroup>
 
 </Project>
