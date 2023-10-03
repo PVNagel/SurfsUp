@@ -11,11 +11,14 @@ using Microsoft.EntityFrameworkCore;
 using SurfsUpAPI.Data;
 using SurfsUpClassLibrary.Models;
 using SurfsUpAPI.Services;
+using System.Net;
+using Newtonsoft.Json;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace SurfsUpAPI.Controllers
 {
     [ApiController]
-    [Route("[Controller]")]
+    [Route("[Controller]/[Action]")]
     public class RentingsAPIController : Controller
     {
         private readonly SurfsUpContext _context;
@@ -29,9 +32,8 @@ namespace SurfsUpAPI.Controllers
 
         // GET: Rentings
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string userId)
         {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
             List<Renting> rentings = User.IsInRole("Admin") ?
                 await _context.Renting.Include(r => r.Board).Include(r => r.SurfsUpUser).ToListAsync() :
@@ -62,27 +64,27 @@ namespace SurfsUpAPI.Controllers
         }
 
         // GET: Rentings/Create
-        public async Task<IActionResult> Create(int boardId)
-        {
-            var board = await _context.Boards.FindAsync(boardId);
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-            RentingQueueService.AddPosition(new RentingQueuePosition()
-            {
-                SurfsUpUserId = userId,
-                QueueJoined = DateTime.Now,
-                BoardId = boardId
-            });
-            var renting = new Renting { BoardId = boardId, SurfsUpUserId = userId, EndDate = DateTime.Now };
-            ViewData["BoardName"] = board.Name;
-            return View(renting);
-        }
+        //[HttpGet("{boardId}")]
+        //public async Task<IActionResult> Create(int boardId)
+        //{
+        //    var board = await _context.Boards.FindAsync(boardId);
+        //    var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+        //    RentingQueueService.AddPosition(new RentingQueuePosition()
+        //    {
+        //        SurfsUpUserId = userId,
+        //        QueueJoined = DateTime.Now,
+        //        BoardId = boardId
+        //    });
+        //    var renting = new Renting { BoardId = boardId, SurfsUpUserId = userId, EndDate = DateTime.Now };
+        //    ViewData["BoardName"] = board.Name;
+        //    return View(renting);
+        //}
 
         // POST: Rentings/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("BoardId,StartDate,EndDate,SurfsUpUserId")] Renting renting)
+        public async Task<IActionResult> Create(Renting renting)
         {
             try
             {
@@ -98,7 +100,8 @@ namespace SurfsUpAPI.Controllers
                         {
                             ModelState.AddModelError(string.Empty,
                                 "Unable to create new renting because another renting has already been created.");
-                            return View(renting);
+
+                            return BadRequest(SerializeModelState(ModelState));
                         }
                     }
 
@@ -106,7 +109,8 @@ namespace SurfsUpAPI.Controllers
                     {
                         ModelState.AddModelError(string.Empty,
                            "An end date is required that is atleast 1 hour long");
-                        return View(renting);
+
+                        return BadRequest(SerializeModelState(ModelState));
                     }
 
 
@@ -114,23 +118,24 @@ namespace SurfsUpAPI.Controllers
                     {
                         ModelState.AddModelError(string.Empty,
                             "Unable to create new renting because another user is currently infront of you in the queue");
-                        return View(renting);
+
+                        return BadRequest(SerializeModelState(ModelState));
                     }
 
                     if (!RentingQueueService.RemovePosition(renting.SurfsUpUserId))
                     {
                         ModelState.AddModelError(string.Empty,
                             "Unable to remove you from the renting queue, please try again.");
-                        return View(renting);
-                    }
 
+                        return BadRequest(SerializeModelState(ModelState));
+                    }
                   
                     _context.Add(renting);
                     await _context.SaveChangesAsync();
 
-                    return RedirectToAction(nameof(Index));
+                    return CreatedAtAction(nameof(Create), new { id = renting.Id }, renting);
                 }
-                return View(renting);
+                return BadRequest(ModelState);
             }
             catch (Exception)
             {
@@ -139,6 +144,7 @@ namespace SurfsUpAPI.Controllers
         }
 
         // GET: Rentings/Edit/5
+        [HttpGet]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null || _context.Renting == null)
@@ -194,6 +200,7 @@ namespace SurfsUpAPI.Controllers
         }
 
         // GET: Rentings/Delete/5
+        [HttpGet]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null || _context.Renting == null)
@@ -214,7 +221,7 @@ namespace SurfsUpAPI.Controllers
         }
 
         // POST: Rentings/Delete/5
-        [HttpPost, ActionName("Delete")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
@@ -248,6 +255,21 @@ namespace SurfsUpAPI.Controllers
         private bool RentingExists(int id)
         {
             return (_context.Renting?.Any(e => e.Id == id)).GetValueOrDefault();
+        }
+
+        private string SerializeModelState(ModelStateDictionary modelState)
+        {
+            var errors = modelState
+                            .Where(x => x.Value.Errors.Any())
+                            .Select(x => new ModelStateError
+                            {
+                                Key = x.Key,
+                                ErrorMessage = x.Value.Errors.First().ErrorMessage
+                            })
+                            .ToList();
+
+            // Serialize the errors to JSON
+            return JsonConvert.SerializeObject(errors);
         }
     }
 }

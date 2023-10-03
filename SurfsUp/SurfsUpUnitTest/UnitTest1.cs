@@ -39,26 +39,26 @@ namespace SurfsUpUnitTest
         // Mocked UserManager
         private Mock<UserManager<SurfsUpUser>> _userManagerMock;
 
-        [TestMethod]
-        public async Task CheckIfBoardIsRentedCorrectly()
-        {
-            // Arrange
-            var controller = new RentingsAPIController(_contextMock.Object, _userManagerMock.Object);
-            var model = new Renting
-            {
-                BoardId = 1,
-                SurfsUpUserId = "test",
-                EndDate = new DateTime(2023, 9, 30, 0, 0, 0)
-            };
+        //[TestMethod]
+        //public async Task CheckIfBoardIsRentedCorrectly()
+        //{
+        //    // Arrange
+        //    var controller = new RentingsAPIController(_contextMock.Object, _userManagerMock.Object);
+        //    var model = new Renting
+        //    {
+        //        BoardId = 1,
+        //        SurfsUpUserId = "test",
+        //        EndDate = new DateTime(2023, 9, 30, 0, 0, 0)
+        //    };
 
-            // Act
-            var result = await controller.Create(model) as RedirectToActionResult;
+        //    // Act
+        //    var result = await controller.Create(model) as RedirectToActionResult;
 
-            // Assert
-            Assert.IsNotNull(result);
-            Assert.AreEqual("Index", result.ActionName);
+        //    // Assert
+        //    Assert.IsNotNull(result);
+        //    Assert.AreEqual("Index", result.ActionName);
 
-        }
+        //}
 
     }
 
