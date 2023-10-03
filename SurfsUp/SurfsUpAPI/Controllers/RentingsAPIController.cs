@@ -14,6 +14,7 @@ using SurfsUpAPI.Services;
 using System.Net;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using System.Xml;
 
 namespace SurfsUpAPI.Controllers
 {
@@ -30,55 +31,55 @@ namespace SurfsUpAPI.Controllers
             _context = context;
         }
 
+
         // GET: Rentings
-        [HttpGet]
-        public async Task<IActionResult> Index(string userId)
+        [HttpGet("{userId}")]
+        public async Task<string> Get(string userId)
         {
 
             List<Renting> rentings = User.IsInRole("Admin") ?
                 await _context.Renting.Include(r => r.Board).Include(r => r.SurfsUpUser).ToListAsync() :
                 await _context.Renting.Include(r => r.Board).Include(r => r.SurfsUpUser).Where(x => x.SurfsUpUserId == userId).ToListAsync();
 
-            return View(rentings);
+            return JsonConvert.SerializeObject(rentings, new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
         }
 
         // GET: Rentings/Details/5
-        [HttpGet("{id}")]
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null || _context.Renting == null)
-            {
-                return NotFound();
-            }
-
-            var renting = await _context.Renting
-                .Include(r => r.Board)
-                .Include(r => r.SurfsUpUser)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (renting == null)
-            {
-                return NotFound();
-            }
-
-            return View(renting);
-        }
-
-        // GET: Rentings/Create
-        //[HttpGet("{boardId}")]
-        //public async Task<IActionResult> Create(int boardId)
+        //[HttpGet("{id}")]
+        //public async Task<IActionResult> Details(int? id)
         //{
-        //    var board = await _context.Boards.FindAsync(boardId);
-        //    var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-        //    RentingQueueService.AddPosition(new RentingQueuePosition()
+        //    if (id == null || _context.Renting == null)
         //    {
-        //        SurfsUpUserId = userId,
-        //        QueueJoined = DateTime.Now,
-        //        BoardId = boardId
-        //    });
-        //    var renting = new Renting { BoardId = boardId, SurfsUpUserId = userId, EndDate = DateTime.Now };
-        //    ViewData["BoardName"] = board.Name;
+        //        return NotFound();
+        //    }
+
+        //    var renting = await _context.Renting
+        //        .Include(r => r.Board)
+        //        .Include(r => r.SurfsUpUser)
+        //        .FirstOrDefaultAsync(m => m.Id == id);
+        //    if (renting == null)
+        //    {
+        //        return NotFound();
+        //    }
+
         //    return View(renting);
         //}
+
+        [HttpPost]
+        public async Task<IActionResult> AddQueuePosition(QueuePositionDataTransferObject queueObject)
+        {
+            bool added = RentingQueueService.AddPosition(new RentingQueuePosition()
+            {
+                SurfsUpUserId = queueObject.UserId,
+                QueueJoined = DateTime.Now,
+                BoardId = queueObject.BoardId
+            });
+            if (!added)
+            {
+                return BadRequest();
+            }
+            return Ok();
+        }
 
         // POST: Rentings/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.

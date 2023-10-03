@@ -28,20 +28,20 @@ namespace SurfsUp.Controllers
             _context = context;
         }
 
-        public async Task<List<Renting>> Get()
+        public async Task<IActionResult> Index()
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
             HttpClient client = new HttpClient();
 
-            string url = $"https://localhost:7022/RentingsAPI/{userId}";
+            string url = $"https://localhost:7022/RentingsAPI/Get/{userId}";
 
             var rentings = await client.GetFromJsonAsync<List<Renting>>(url);
             if(rentings == null)
             {
-                return null;
+                return BadRequest("rentings is null");
             }
 
-            return rentings;
+            return View(rentings);
 
         }
 
@@ -51,12 +51,14 @@ namespace SurfsUp.Controllers
         {
             var board = await _context.Boards.FindAsync(boardId);
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-            RentingQueueService.AddPosition(new RentingQueuePosition()
+            HttpClient client = new HttpClient();
+            QueuePositionDataTransferObject queuePositionDataTransfer = new QueuePositionDataTransferObject { BoardId = boardId, UserId = userId };
+            string url = $"https://localhost:7022/RentingsAPI/AddQueuePosition";
+            var response = await client.PostAsJsonAsync(url, queuePositionDataTransfer);
+            if (!response.IsSuccessStatusCode)
             {
-                SurfsUpUserId = userId,
-                QueueJoined = DateTime.Now,
-                BoardId = boardId
-            });
+                return BadRequest("Could not add Queue Position - FUCK");
+            }
             var renting = new Renting { BoardId = boardId, SurfsUpUserId = userId, EndDate = DateTime.Now };
             ViewData["BoardName"] = board.Name;
             return View(renting);
@@ -89,7 +91,7 @@ namespace SurfsUp.Controllers
                     }
                 }
 
-                return RedirectToAction(nameof(Get));
+                return RedirectToAction(nameof(Index));
             }
             catch (Exception)
             {

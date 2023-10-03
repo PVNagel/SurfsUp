@@ -26,7 +26,7 @@ namespace SurfsUpUnitTest
                 client.BaseAddress = new Uri(apiUrl);
 
                 // Act
-                HttpResponseMessage response = client.GetAsync("").Result; // Send a GET request to the API's root endpoint
+                HttpResponseMessage response = client.GetAsync($"/RentingsAPI/Get/60173bf4-c37c-4c47-8f23-c68591bace90").Result; // Send a GET request to the API's root endpoint
 
                 // Assert
                 Assert.IsTrue(response.IsSuccessStatusCode, "Failed to connect to the API.");

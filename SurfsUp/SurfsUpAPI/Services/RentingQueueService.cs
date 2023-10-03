@@ -7,9 +7,17 @@ namespace SurfsUpAPI.Services
     {
         private static ConcurrentBag<RentingQueuePosition> rentingQueuePositions = new ConcurrentBag<RentingQueuePosition>();
 
-        public static void AddPosition(RentingQueuePosition position)
+        public static bool AddPosition(RentingQueuePosition position)
         {
-            rentingQueuePositions.Add(position);
+            try
+            {
+                rentingQueuePositions.Add(position);
+                return true;
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
         }
 
         public static RentingQueuePosition GetPosition(string userId)
