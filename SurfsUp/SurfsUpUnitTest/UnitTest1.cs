@@ -43,7 +43,7 @@ namespace SurfsUpUnitTest
         public async Task CheckIfBoardIsRentedCorrectly()
         {
             // Arrange
-            var controller = new RentingsController(_contextMock.Object, _userManagerMock.Object);
+            var controller = new RentingsAPIController(_contextMock.Object, _userManagerMock.Object);
             var model = new Renting
             {
                 BoardId = 1,

@@ -8,25 +8,27 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using SurfsUp.Data;
+using SurfsUpAPI.Data;
 using SurfsUpClassLibrary.Models;
-using SurfsUp.Services;
+using SurfsUpAPI.Services;
 
-namespace SurfsUp.Controllers
+namespace SurfsUpAPI.Controllers
 {
-    [Authorize]
-    public class RentingsController : Controller
+    [ApiController]
+    [Route("[Controller]")]
+    public class RentingsAPIController : Controller
     {
         private readonly SurfsUpContext _context;
-        private readonly UserManager<SurfsUpUser> _userManager;
+        //private readonly UserManager<SurfsUpUser> _userManager;
 
-        public RentingsController(SurfsUpContext context, UserManager<SurfsUpUser> _userManager)
+        public RentingsAPIController(SurfsUpContext context) //UserManager<SurfsUpUser> _userManager)
         {
-            _userManager = _userManager;
+            //_userManager = _userManager;
             _context = context;
         }
 
         // GET: Rentings
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
@@ -39,6 +41,7 @@ namespace SurfsUp.Controllers
         }
 
         // GET: Rentings/Details/5
+        [HttpGet("{id}")]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null || _context.Renting == null)
