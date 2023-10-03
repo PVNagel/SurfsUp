@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace SurfsUp.Models
+namespace SurfsUpClassLibrary.Models
 {
     [NotMapped]
     public class RentingQueuePosition

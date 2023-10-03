@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using SurfsUp.Data;
-using SurfsUp.Areas.Identity.Data;
+using SurfsUpClassLibrary.Models;
 using System.Globalization;
 using Microsoft.AspNetCore.Identity;
 using SurfsUp.Services;

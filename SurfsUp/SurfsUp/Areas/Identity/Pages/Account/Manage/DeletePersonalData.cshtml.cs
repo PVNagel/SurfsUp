@@ -10,10 +10,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using SurfsUp.Areas.Identity.Data;
 using SurfsUp.Controllers;
 using SurfsUp.Data;
-using SurfsUp.Models;
+using SurfsUpClassLibrary.Models;
 
 namespace SurfsUp.Areas.Identity.Pages.Account.Manage
 {

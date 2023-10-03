@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
-using SurfsUp.Areas.Identity.Data;
+using SurfsUpClassLibrary.Models;
 
 namespace SurfsUp.Areas.Identity.Pages.Account
 {

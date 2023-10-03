@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using SurfsUpClassLibrary.Models;
 
-namespace SurfsUp.Data
+namespace SurfsUpAPI.Data
 {
     public class SurfsUpContext : IdentityDbContext<SurfsUpUser>
     {

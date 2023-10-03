@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SurfsUp.Data;
+using SurfsUpAPI.Data;
 using SurfsUpClassLibrary.Models;
 
-namespace SurfsUp.Services
+namespace SurfsUpAPI.Services
 {
     public class ImageService
     {
