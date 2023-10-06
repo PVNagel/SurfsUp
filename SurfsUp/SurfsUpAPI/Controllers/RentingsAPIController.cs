@@ -31,6 +31,12 @@ namespace SurfsUpAPI.Controllers
             _context = context;
         }
 
+        [HttpGet]
+        public async Task<IActionResult> TestApi()
+        {
+
+            return Ok();
+        }
 
         // GET: Rentings
         [HttpGet("{userId}")]

@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SurfsUpAPI", "SurfsUpAPI\Su
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SurfsUpClassLibrary", "SurfsUpClassLibrary\SurfsUpClassLibrary.csproj", "{8A122872-CDBD-4070-A560-556072E1FC2D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SurfsUpUnitTest", "SurfsUpUnitTest\SurfsUpUnitTest.csproj", "{DB721257-577A-416D-BBC5-F0505C377CB9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "SurfsUpUnitTest\Tests.csproj", "{DB721257-577A-416D-BBC5-F0505C377CB9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
