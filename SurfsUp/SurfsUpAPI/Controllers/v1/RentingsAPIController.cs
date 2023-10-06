@@ -16,10 +16,11 @@ using Newtonsoft.Json;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.Xml;
 
-namespace SurfsUpAPI.Controllers
+namespace SurfsUpAPI.Controllers.v1
 {
     [ApiController]
-    [Route("[Controller]/[Action]")]
+    [Route("/v{version:apiVersion}/[Controller]/[Action]")]
+    [ApiVersion("1.0")]
     public class RentingsAPIController : Controller
     {
         private readonly SurfsUpContext _context;
@@ -93,7 +94,7 @@ namespace SurfsUpAPI.Controllers
                 {
                     renting.StartDate = DateTime.Now;
                     var rentings = _context.Renting.Where(x => x.BoardId == renting.BoardId);
-                    foreach(var item in rentings)
+                    foreach (var item in rentings)
                     {
                         // hvis nye rentings startdate er før item enddate
                         // ELLER renting startdate er efter item startdate og renting enddate er før item enddate 
@@ -130,7 +131,7 @@ namespace SurfsUpAPI.Controllers
 
                         return BadRequest(SerializeModelState(ModelState));
                     }
-                  
+
                     _context.Add(renting);
                     await _context.SaveChangesAsync();
 
@@ -250,7 +251,7 @@ namespace SurfsUpAPI.Controllers
             {
                 return Ok(new { Message = "Anmodningen blev behandlet med succes." });
             }
-            return BadRequest(new { Message = "Anmodningen kunne ikke fuldføres."});
+            return BadRequest(new { Message = "Anmodningen kunne ikke fuldføres." });
         }
 
         private bool RentingExists(int id)
