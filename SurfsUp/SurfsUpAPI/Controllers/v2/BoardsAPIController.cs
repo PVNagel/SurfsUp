@@ -16,24 +16,27 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using SurfsUp.Data;
+using SurfsUpAPI.Data;
 using SurfsUpClassLibrary.Models;
-using SurfsUp.Services;
+using SurfsUpAPI.Services;
 
-namespace SurfsUp.Controllers
+namespace SurfsUpAPI.Controllers.v2
 {
-    public class BoardsController : Controller
+    [ApiController]
+    [Route("/v{version:apiVersion}/[Controller]/[Action]")]
+    [ApiVersion("2.0")]
+    public class BoardsAPIController : Controller
     {
         // her laver vi fields som vi sætter til vores services. 
         private readonly SurfsUpContext _context; //dbcontext er en scoped service
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly ImageService _imageService; // en scoped service som vi har initialized i Program.cs. Den håndtere images
 
-        public BoardsController(
+        public BoardsAPIController(
             //her bruger vi dependency injection til at hente vores services ind i controlleren igennem constructoren.
-            SurfsUpContext context,  
-            IWebHostEnvironment webHostEnvironment, 
-            ImageService imageService) 
+            SurfsUpContext context,
+            IWebHostEnvironment webHostEnvironment,
+            ImageService imageService)
         {
             // sætter vores fields til vores injectede services
             _context = context;
@@ -41,6 +44,15 @@ namespace SurfsUp.Controllers
             _imageService = imageService;
         }
 
+        // GET: ALL Boards
+        [HttpGet]
+        public async Task<List<Board>> GetAllBoards()
+        {
+            var boardsList = _context.Boards.Include(x => x.Rentings).ToList();
+            return boardsList;
+        }
+
+        [HttpGet]
         // GET: Boards
         public async Task<IActionResult> Index(string sortOrder, string currentFilter, string searchString, string selectedProperty, int? pageNumber)
         {
@@ -55,7 +67,7 @@ namespace SurfsUp.Controllers
             {
                 searchString = currentFilter;
             }
-            
+
             // Sortering
             // Nogen der kan give en lækker forklaring på det her?
             ViewData["CurrentSort"] = sortOrder;
@@ -71,10 +83,10 @@ namespace SurfsUp.Controllers
             // som er en liste vi kan bruge i vores select html tag så det bliver dynamisk sat ind.
             var modelProperties = typeof(Board).GetProperties();
             ViewBag.PropertyList = new SelectList(modelProperties, "Name", "Name");
-            
+
             ViewData["CurrentFilter"] = searchString;
 
-            if(selectedProperty != null)
+            if (selectedProperty != null)
             {
                 ViewData["selectedProperty"] = selectedProperty;
             }
@@ -86,22 +98,7 @@ namespace SurfsUp.Controllers
                 // Vi henter userId, som vi skal bruge til at fjerne de boards som er lejet af andre brugere.
                 userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
             }
-
-            string url;
-            HttpClient client = new HttpClient();
-            if (User.Identity.IsAuthenticated)
-            {
-                client.BaseAddress = new Uri("https://localhost:7022/v2/BoardsAPI/GetAllBoards");
-            }
-            else
-                client.BaseAddress = new Uri("https://localhost:7022/v1/BoardsAPI/GetAllBoards");
-
-            var boardsList = await client.GetFromJsonAsync<List<Board>>(client.BaseAddress);
-            if (boardsList == null)
-            {
-                return BadRequest("Boards list is null");
-            }
-
+            var boardsList = _context.Boards.Include(x => x.Rentings).ToList();
             // RemoveBoardsRentedByOthers er en metode som vi har lavet til at gøre koden mere læselig.
             // Jeg har bare gjort det så metoden ikke var så lang og uoverskuelig. (Den findes i bunden af controlleren)
             var boards = RemoveBoardsRentedByOthers(boardsList, userId);
@@ -163,9 +160,11 @@ namespace SurfsUp.Controllers
                 // CreateAsync laver en ny paginatedList med de parametre vi giver.
                 var paginatedList = await PaginatedList<Board>.CreateAsync(searchBoards, pageNumber ?? 1, pageSize);
                 return View(paginatedList);
+
+
             }
 
-            if (!String.IsNullOrEmpty(searchString))
+            if (!string.IsNullOrEmpty(searchString))
             {
                 var searchBoards = boards.ToList();
                 var result = searchBoards.Where(b => b.Name.ToLower().Contains(searchString) ||
@@ -174,7 +173,7 @@ namespace SurfsUp.Controllers
                                            b.Thickness.ToString().Contains(searchString) ||
                                            b.Volume.ToString().Contains(searchString) ||
                                            b.Type.ToString().ToLower().Contains(searchString) ||
-                                           String.IsNullOrEmpty(b.Equipment) == false && b.Equipment.ToLower().Contains(searchString) ||
+                                           string.IsNullOrEmpty(b.Equipment) == false && b.Equipment.ToLower().Contains(searchString) ||
                                            b.Price.ToString().Contains(searchString));
 
                 var paginatedList = await PaginatedList<Board>.CreateAsync(result.ToList(), pageNumber ?? 1, pageSize);
@@ -184,7 +183,7 @@ namespace SurfsUp.Controllers
             return View(await PaginatedList<Board>.CreateAsync(boards.AsNoTracking().ToList(), pageNumber ?? 1, pageSize));
         }
 
-        
+        [HttpGet]
         // GET: Boards/Details/5
         public async Task<IActionResult> Details(int? id)
         {
@@ -205,7 +204,7 @@ namespace SurfsUp.Controllers
         }
 
         // GET: Boards/Create
-
+        [HttpGet]
         [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
@@ -217,9 +216,9 @@ namespace SurfsUp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-                                                                                                                            // attachments er ikke længere en del af board,
-                                                                                                                            // da det gav mere mening at de er adskilt og board kun har en 
-                                                                                                                            // Property der hedder Images
+        // attachments er ikke længere en del af board,
+        // da det gav mere mening at de er adskilt og board kun har en 
+        // Property der hedder Images
         public async Task<IActionResult> Create([Bind("Name,Length,Width,Thickness,Volume,Type,Price,Equipment")] Board board, IList<IFormFile>? attachments)
         {
             if (ModelState.IsValid)
@@ -234,7 +233,7 @@ namespace SurfsUp.Controllers
                     // board via boardId, samt et image path. billedfilerne gemmes i wwwroot
                     await _imageService.SaveImages(entity.Id, attachments);
                 }
-              
+
                 return RedirectToAction(nameof(Index));
             }
             return View(board);
@@ -243,10 +242,11 @@ namespace SurfsUp.Controllers
 
         // GET: Boards/Edit/5
         [Authorize(Roles = "Admin")]
+        [HttpGet]
         public async Task<IActionResult> Edit(int? id)
         {
 
-           
+
             if (id == null || _context.Boards == null)
             {
                 return NotFound();
@@ -270,8 +270,6 @@ namespace SurfsUp.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]                                                                                                    // attachments er ikke længere en del af board,
-                                                                                                                                        // da det gav mere mening at de er adskilt og board kun har en 
-                                                                                                                                        // Property der hedder Images
         public async Task<IActionResult> Edit(int id, IList<IFormFile>? attachments, byte[] rowVersion)
         {
             if (id == null)
@@ -293,7 +291,7 @@ namespace SurfsUp.Controllers
             _context.Entry(boardToUpdate).Property("RowVersion").OriginalValue = rowVersion;
             // Denne lange if sætning tjekker om nogle af boardes properties er blevet ændret i edit.
             // Den thrower en exception hvis en prøver at save, når en anden bruger har gjort det først.
-            if (await TryUpdateModelAsync<Board>(
+            if (await TryUpdateModelAsync(
                boardToUpdate,
                "",
                b => b.Name, b => b.Length, b => b.Width, b => b.Thickness, b => b.Volume, b => b.Type, b => b.Price, b => b.Equipment, b => b.Images))
@@ -317,57 +315,57 @@ namespace SurfsUp.Controllers
                     var exceptionEntry = ex.Entries.Single();
                     var clientValues = (Board)exceptionEntry.Entity;
                     var databaseEntry = exceptionEntry.GetDatabaseValues();
-                    
-                        var databaseValues = (Board)databaseEntry.ToObject();
 
-                        if (databaseValues.Name != clientValues.Name)
-                        {
-                            ModelState.AddModelError("Name", $"Current value: {databaseValues.Name}");
-                        }
-                        if (databaseValues.Length != clientValues.Length)
-                        {
-                            ModelState.AddModelError("Length", $"Current value: {databaseValues.Length:c}");
-                        }
-                        if (databaseValues.Width != clientValues.Width)
-                        {
-                            ModelState.AddModelError("Width", $"Current value: {databaseValues.Width:d}");
-                        }
-                        if (databaseValues.Thickness != clientValues.Thickness)
-                        {
-                            ModelState.AddModelError("Thickness", $"Current value: {databaseValues.Thickness:d}");
+                    var databaseValues = (Board)databaseEntry.ToObject();
 
-                        }
-                        if (databaseValues.Volume != clientValues.Volume)
-                        {
-                            ModelState.AddModelError("Volume", $"Current value: {databaseValues.Volume:d}");
+                    if (databaseValues.Name != clientValues.Name)
+                    {
+                        ModelState.AddModelError("Name", $"Current value: {databaseValues.Name}");
+                    }
+                    if (databaseValues.Length != clientValues.Length)
+                    {
+                        ModelState.AddModelError("Length", $"Current value: {databaseValues.Length:c}");
+                    }
+                    if (databaseValues.Width != clientValues.Width)
+                    {
+                        ModelState.AddModelError("Width", $"Current value: {databaseValues.Width:d}");
+                    }
+                    if (databaseValues.Thickness != clientValues.Thickness)
+                    {
+                        ModelState.AddModelError("Thickness", $"Current value: {databaseValues.Thickness:d}");
 
-                        }
-                        if (databaseValues.Type != clientValues.Type)
-                        {
-                            ModelState.AddModelError("Type", $"Current value: {databaseValues.Type:d}");
+                    }
+                    if (databaseValues.Volume != clientValues.Volume)
+                    {
+                        ModelState.AddModelError("Volume", $"Current value: {databaseValues.Volume:d}");
 
-                        }
-                        if (databaseValues.Price != clientValues.Price)
-                        {
-                            ModelState.AddModelError("Price", $"Current value: {databaseValues.Price:d}");
+                    }
+                    if (databaseValues.Type != clientValues.Type)
+                    {
+                        ModelState.AddModelError("Type", $"Current value: {databaseValues.Type:d}");
 
-                        }
-                        if (databaseValues.Equipment != clientValues.Equipment)
-                        {
-                            ModelState.AddModelError("Equipment", $"Current value: {databaseValues.Equipment:d}");
-                        }
-                        if (databaseValues.Images != clientValues.Images)
-                        {
-                            ModelState.AddModelError("Images", $"Current value: {databaseValues.Images:d}");
-                        }
-                        ModelState.AddModelError(string.Empty, "The board you attempted to edit "
-                                + "was modified by another user after you got the original value. The "
-                                + "edit operation was canceled and the current values in the database "
-                                + "have been displayed. If you still want to edit this record, click "
-                                + "the Save button again. Otherwise click the Back to List hyperlink.");
-                        boardToUpdate.RowVersion = (byte[])databaseValues.RowVersion;
-                        ModelState.Remove("RowVersion");
-                    
+                    }
+                    if (databaseValues.Price != clientValues.Price)
+                    {
+                        ModelState.AddModelError("Price", $"Current value: {databaseValues.Price:d}");
+
+                    }
+                    if (databaseValues.Equipment != clientValues.Equipment)
+                    {
+                        ModelState.AddModelError("Equipment", $"Current value: {databaseValues.Equipment:d}");
+                    }
+                    if (databaseValues.Images != clientValues.Images)
+                    {
+                        ModelState.AddModelError("Images", $"Current value: {databaseValues.Images:d}");
+                    }
+                    ModelState.AddModelError(string.Empty, "The board you attempted to edit "
+                            + "was modified by another user after you got the original value. The "
+                            + "edit operation was canceled and the current values in the database "
+                            + "have been displayed. If you still want to edit this record, click "
+                            + "the Save button again. Otherwise click the Back to List hyperlink.");
+                    boardToUpdate.RowVersion = databaseValues.RowVersion;
+                    ModelState.Remove("RowVersion");
+
                 }
             }
 
@@ -376,6 +374,7 @@ namespace SurfsUp.Controllers
 
         // GET: Boards/Delete/5
         [Authorize(Roles = "Admin")]
+        [HttpGet]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null || _context.Boards == null)
@@ -477,7 +476,7 @@ namespace SurfsUp.Controllers
                     // ser om boardet har en værdi for den Property
                     if (propertyValue != null)
                     {
-                        if (!String.IsNullOrEmpty(searchString))
+                        if (!string.IsNullOrEmpty(searchString))
                         {
                             // hvis brugeren også har skrevet noget i searchstring, 
                             // tjekkes om property værdien indeholder searchstring
