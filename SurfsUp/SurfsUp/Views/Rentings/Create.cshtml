@@ -13,6 +13,7 @@
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" name="SurfsUpUserId" value="@Model.SurfsUpUserId" />
+            <input type="hidden" name="GuestUserIp" value="@Model.GuestUserIp" />
             <input type="hidden" name="StartDate" value="@Model.StartDate" />
             <input asp-for="BoardId" type="hidden" />
             <div class="form-group">

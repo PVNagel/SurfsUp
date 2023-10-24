@@ -18,6 +18,7 @@ namespace SurfsUp.Data
         public DbSet<Board> Boards { get; set; } = default!;
         public DbSet<Image> Images { get; set; } = default!;
         public DbSet<Renting> Renting { get; set; } = default!;
+        public DbSet<GuestUser> GuestUsers { get; set; } = default!;
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

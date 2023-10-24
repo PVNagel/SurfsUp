@@ -1,5 +1,6 @@
 ﻿using SurfsUpClassLibrary.Models;
 using System.Collections.Concurrent;
+using System.Net;
 
 namespace SurfsUpAPI.Services
 {
@@ -20,15 +21,31 @@ namespace SurfsUpAPI.Services
             }
         }
 
-        public static RentingQueuePosition GetPosition(string userId)
+        public static RentingQueuePosition GetPosition(string? userId, string? guestUserIp)
         {
-            return rentingQueuePositions.FirstOrDefault(x => x.SurfsUpUserId == userId);
+            if(userId != null)
+            {
+                return rentingQueuePositions.FirstOrDefault(x => x.SurfsUpUserId == userId);
+            }
+            else
+            {
+                return rentingQueuePositions.FirstOrDefault(x => x.GuestUserIp == guestUserIp);
+            }
         }
 
-        public static bool RemovePosition(string surfsUpUserId)
+        public static bool RemovePosition(string? userId, string? guestUserIp)
         {
-            var position = rentingQueuePositions.FirstOrDefault(x => x.SurfsUpUserId == surfsUpUserId);
-            return rentingQueuePositions.TryTake(out position);
+            if (userId != null)
+            {
+                var position = rentingQueuePositions.FirstOrDefault(x => x.SurfsUpUserId == userId);
+                return rentingQueuePositions.TryTake(out position);
+            }
+            else
+            {
+                var position = rentingQueuePositions.FirstOrDefault(x => x.GuestUserIp == guestUserIp);
+                return rentingQueuePositions.TryTake(out position);
+            }
+
         }
 
         public static bool IsFirstPosition(RentingQueuePosition position)

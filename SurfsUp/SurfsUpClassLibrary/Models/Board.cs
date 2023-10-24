@@ -31,6 +31,8 @@ namespace SurfsUpClassLibrary.Models
         public decimal Price { get; set; }
         [DataType(DataType.Text)]
         public string? Equipment { get; set; }
+        [Required]
+        public bool IsPremium { get; set; } = false;
 
         [Timestamp]
         public byte[] RowVersion { get; set; }

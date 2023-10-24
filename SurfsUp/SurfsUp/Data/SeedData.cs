@@ -71,7 +71,8 @@ namespace SurfsUp.Data
                             Volume = 38.8,
                             Type = TypeEnum.Shortboard,
                             Price = 565,
-                            Equipment = null
+                            Equipment = null,
+                            IsPremium = false,
                         },
                          new Board
                         {
@@ -82,7 +83,8 @@ namespace SurfsUp.Data
                             Volume = 44.16,
                             Type = TypeEnum.Funboard,
                             Price = 685,
-                            Equipment = null
+                            Equipment = null,
+                            IsPremium = false,
                         },
                         new Board
                         {
@@ -93,7 +95,8 @@ namespace SurfsUp.Data
                             Volume = 43.22,
                             Type = TypeEnum.Funboard,
                             Price = 695,
-                            Equipment = null
+                            Equipment = null,
+                            IsPremium = false,
                         },
                         new Board
                         {
@@ -104,7 +107,8 @@ namespace SurfsUp.Data
                             Volume = 29.39,
                             Type = TypeEnum.Fish,
                             Price = 645,
-                            Equipment = null
+                            Equipment = null,
+                            IsPremium = false,
                         },
                         new Board
                         {
@@ -115,7 +119,8 @@ namespace SurfsUp.Data
                             Volume = 65.4,
                             Type = TypeEnum.Longboard,
                             Price = 895,
-                            Equipment = null
+                            Equipment = null,
+                            IsPremium = false,
                         },
                         new Board
                         {
@@ -126,7 +131,8 @@ namespace SurfsUp.Data
                             Volume = 33.7,
                             Type = TypeEnum.Shortboard,
                             Price = 645,
-                            Equipment = null
+                            Equipment = null,
+                            IsPremium = false,
                         },
                         new Board
                         {
@@ -137,7 +143,8 @@ namespace SurfsUp.Data
                             Volume = 80,
                             Type = TypeEnum.Longboard,
                             Price = 1025,
-                            Equipment = null
+                            Equipment = null,
+                            IsPremium = false,
                         },
                         new Board
                         {
@@ -148,7 +155,8 @@ namespace SurfsUp.Data
                             Volume = 301,
                             Type = TypeEnum.SUP,
                             Price = 854,
-                            Equipment = "Paddle"
+                            Equipment = "Paddle",
+                            IsPremium = true,
                         },
                         new Board
                         {
@@ -159,7 +167,8 @@ namespace SurfsUp.Data
                             Volume = 270,
                             Type = TypeEnum.SUP,
                             Price = 611,
-                            Equipment = "Fin, Paddle, Pump, Leash"
+                            Equipment = "Fin, Paddle, Pump, Leash",
+                            IsPremium = true,
                         },
                         new Board
                         {
@@ -170,7 +179,8 @@ namespace SurfsUp.Data
                             Volume = 330,
                             Type = TypeEnum.SUP,
                             Price = 1304,
-                            Equipment = "Fin, Paddle, Pump, Leash"
+                            Equipment = "Fin, Paddle, Pump, Leash",
+                            IsPremium = true,
                         }
                     });
 

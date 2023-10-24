@@ -15,6 +15,7 @@ using System.Net;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.Xml;
+using Newtonsoft.Json.Linq;
 
 namespace SurfsUpAPI.Controllers.v1
 {
@@ -34,51 +35,58 @@ namespace SurfsUpAPI.Controllers.v1
 
 
         // GET: Rentings
-        [HttpGet("{userId}")]
-        public async Task<string> Get(string userId)
+        [HttpGet]
+        public async Task<string> Get(string? userId, string? guestUserIp)
         {
-
-            List<Renting> rentings = User.IsInRole("Admin") ?
+            List<Renting> rentings;
+            if(userId != null)
+            {
+                rentings = User.IsInRole("Admin") ?
                 await _context.Renting.Include(r => r.Board).Include(r => r.SurfsUpUser).ToListAsync() :
                 await _context.Renting.Include(r => r.Board).Include(r => r.SurfsUpUser).Where(x => x.SurfsUpUserId == userId).ToListAsync();
+
+            }
+            else
+            {
+                rentings = await _context.Renting.Include(r => r.Board).Where(x => x.GuestUserIp == guestUserIp).ToListAsync();
+            }
+            
 
             return JsonConvert.SerializeObject(rentings, new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
         }
 
-        // GET: Rentings/Details/5
-        //[HttpGet("{id}")]
-        //public async Task<IActionResult> Details(int? id)
-        //{
-        //    if (id == null || _context.Renting == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    var renting = await _context.Renting
-        //        .Include(r => r.Board)
-        //        .Include(r => r.SurfsUpUser)
-        //        .FirstOrDefaultAsync(m => m.Id == id);
-        //    if (renting == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    return View(renting);
-        //}
+     
 
         [HttpPost]
         public async Task<IActionResult> AddQueuePosition(QueuePositionDataTransferObject queueObject)
         {
-            bool added = RentingQueueService.AddPosition(new RentingQueuePosition()
+            if(queueObject.GuestUserIp != null)
             {
-                SurfsUpUserId = queueObject.UserId,
-                QueueJoined = DateTime.Now,
-                BoardId = queueObject.BoardId
-            });
-            if (!added)
-            {
-                return BadRequest();
+                bool added = RentingQueueService.AddPosition(new RentingQueuePosition()
+                {
+                    GuestUserIp = queueObject.GuestUserIp,
+                    QueueJoined = DateTime.Now,
+                    BoardId = queueObject.BoardId
+                });
+                if (!added)
+                {
+                    return BadRequest();
+                }
             }
+            else
+            {
+                bool added = RentingQueueService.AddPosition(new RentingQueuePosition()
+                {
+                    SurfsUpUserId = queueObject.UserId,
+                    QueueJoined = DateTime.Now,
+                    BoardId = queueObject.BoardId
+                });
+                if (!added)
+                {
+                    return BadRequest();
+                }
+            }
+
             return Ok();
         }
 
@@ -90,6 +98,36 @@ namespace SurfsUpAPI.Controllers.v1
         {
             try
             {
+                if(renting.GuestUserIp == null && renting.SurfsUpUserId == null)
+                {
+                    return BadRequest();
+                }
+                else
+                {
+                    if(renting.GuestUserIp != null)
+                    {
+                        var guestUser = await _context.GuestUsers.FindAsync(renting.GuestUserIp);
+                        if(guestUser == null)
+                        {
+                            return BadRequest();
+                        }
+                    }
+                    else
+                    {
+                        if (User.Identity.IsAuthenticated)
+                        {
+                            if (User.FindFirst(ClaimTypes.NameIdentifier).Value != renting.SurfsUpUserId)
+                            {
+                                return BadRequest();
+                            }
+                        }
+                        else
+                        {
+                            return BadRequest();
+                        }
+                    }
+                }
+
                 if (ModelState.IsValid)
                 {
                     renting.StartDate = DateTime.Now;
@@ -115,8 +153,7 @@ namespace SurfsUpAPI.Controllers.v1
                         return BadRequest(SerializeModelState(ModelState));
                     }
 
-
-                    if (!RentingQueueService.IsFirstPosition(RentingQueueService.GetPosition(renting.SurfsUpUserId)))
+                    if (!RentingQueueService.IsFirstPosition(RentingQueueService.GetPosition(renting.SurfsUpUserId, renting.GuestUserIp)))
                     {
                         ModelState.AddModelError(string.Empty,
                             "Unable to create new renting because another user is currently infront of you in the queue");
@@ -124,13 +161,14 @@ namespace SurfsUpAPI.Controllers.v1
                         return BadRequest(SerializeModelState(ModelState));
                     }
 
-                    if (!RentingQueueService.RemovePosition(renting.SurfsUpUserId))
+                    if (!RentingQueueService.RemovePosition(renting.SurfsUpUserId, renting.GuestUserIp))
                     {
                         ModelState.AddModelError(string.Empty,
                             "Unable to remove you from the renting queue, please try again.");
 
                         return BadRequest(SerializeModelState(ModelState));
                     }
+
 
                     _context.Add(renting);
                     await _context.SaveChangesAsync();
@@ -145,109 +183,25 @@ namespace SurfsUpAPI.Controllers.v1
             }
         }
 
-        // GET: Rentings/Edit/5
-        [HttpGet]
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null || _context.Renting == null)
-            {
-                return NotFound();
-            }
-
-            var renting = await _context.Renting.FindAsync(id);
-            if (renting == null)
-            {
-                return NotFound();
-            }
-            ViewData["BoardId"] = new SelectList(_context.Boards, "Id", "Name", renting.BoardId);
-            ViewData["SurfsUpUserId"] = new SelectList(_context.Users, "Id", "Id", renting.SurfsUpUserId);
-            return View(renting);
-        }
-
-        // POST: Rentings/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,SurfsUpUserId,BoardId,StartDate,EndDate")] Renting renting)
-        {
-            if (id != renting.Id)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(renting);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!RentingExists(renting.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["BoardId"] = new SelectList(_context.Boards, "Id", "Name", renting.BoardId);
-            ViewData["SurfsUpUserId"] = new SelectList(_context.Users, "Id", "Id", renting.SurfsUpUserId);
-            return View(renting);
-        }
-
-        // GET: Rentings/Delete/5
-        [HttpGet]
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null || _context.Renting == null)
-            {
-                return NotFound();
-            }
-
-            var renting = await _context.Renting
-                .Include(r => r.Board)
-                .Include(r => r.SurfsUpUser)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (renting == null)
-            {
-                return NotFound();
-            }
-
-            return View(renting);
-        }
-
-        // POST: Rentings/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            if (_context.Renting == null)
-            {
-                return Problem("Entity set 'SurfsUpContext.Renting'  is null.");
-            }
-            var renting = await _context.Renting.FindAsync(id);
-            if (renting != null)
-            {
-                _context.Renting.Remove(renting);
-            }
-
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
+        
 
         //Bliver kaldt fra userLeavesRentingPage.js i /renting/create view, hvis man går væk fra siden uden at trykke create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> RemoveQueuePosition()
+        public async Task<IActionResult> RemoveQueuePosition([FromBody] JObject requestBody)
         {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-            if (RentingQueueService.RemovePosition(userId))
+            string userId = null;
+            string clientIP = null;
+            if (User.Identity.IsAuthenticated)
+            {
+                userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            }
+            else
+            {
+                clientIP = requestBody.Value<string>("clientIP");
+            }
+
+            if (RentingQueueService.RemovePosition(userId, clientIP))
             {
                 return Ok(new { Message = "Anmodningen blev behandlet med succes." });
             }

@@ -28,6 +28,7 @@ namespace SurfsUp.Controllers
         private readonly SurfsUpContext _context; //dbcontext er en scoped service
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly ImageService _imageService; // en scoped service som vi har initialized i Program.cs. Den håndtere images
+        private readonly HttpClient _client;
 
         public BoardsController(
             //her bruger vi dependency injection til at hente vores services ind i controlleren igennem constructoren.
@@ -39,6 +40,7 @@ namespace SurfsUp.Controllers
             _context = context;
             _webHostEnvironment = webHostEnvironment;
             _imageService = imageService;
+            _client = new HttpClient { BaseAddress = new Uri("https://localhost:7022") };
         }
 
         // GET: Boards
@@ -88,15 +90,16 @@ namespace SurfsUp.Controllers
             }
 
             string url;
-            HttpClient client = new HttpClient();
             if (User.Identity.IsAuthenticated)
             {
-                client.BaseAddress = new Uri("https://localhost:7022/v2/BoardsAPI/GetAllBoards");
+                url = "/v2/BoardsAPI/GetAllBoards";
             }
             else
-                client.BaseAddress = new Uri("https://localhost:7022/v1/BoardsAPI/GetAllBoards");
+            {
+                url = "/v1/BoardsAPI/GetAllBoards";
+            }
 
-            var boardsList = await client.GetFromJsonAsync<List<Board>>(client.BaseAddress);
+            var boardsList = await _client.GetFromJsonAsync<List<Board>>(url);
             if (boardsList == null)
             {
                 return BadRequest("Boards list is null");
@@ -220,7 +223,7 @@ namespace SurfsUp.Controllers
                                                                                                                             // attachments er ikke længere en del af board,
                                                                                                                             // da det gav mere mening at de er adskilt og board kun har en 
                                                                                                                             // Property der hedder Images
-        public async Task<IActionResult> Create([Bind("Name,Length,Width,Thickness,Volume,Type,Price,Equipment")] Board board, IList<IFormFile>? attachments)
+        public async Task<IActionResult> Create([Bind("Name,Length,Width,Thickness,Volume,Type,Price,Equipment,IsPremium")] Board board, IList<IFormFile>? attachments)
         {
             if (ModelState.IsValid)
             {
