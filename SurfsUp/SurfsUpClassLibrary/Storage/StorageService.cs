@@ -1,5 +1,6 @@
 ﻿using SurfsUpClassLibrary.Models;
 using SurfsUpClassLibrary.ShoppingCart.Models;
+using System.Net.Http.Json;
 
 namespace SurfsUpClassLibrary.Storage
 {
@@ -11,42 +12,41 @@ namespace SurfsUpClassLibrary.Storage
         /// <summary>
         /// Stores a list of products.
         /// </summary>
-        public IList<Board> Products { get; private set; }
+
+        private readonly HttpClient httpClient ;
+
 
         /// <summary>
         /// Stores the shopping cart.        
         /// </summary>
         public ShoppingCartModel ShoppingCart { get; private set; }
 
-        ///// <summary>
-        /////  Constructs a storage service.
-        ///// </summary>
-        //public StorageService()
-        //{
-        //    Products = new List<Board>();
-        //    ShoppingCart = new ShoppingCartModel();
+        /// <summary>
+        ///  Constructs a storage service.
+        /// </summary>
+        public StorageService()
+        {
+            httpClient = new HttpClient { BaseAddress = new Uri("https://localhost:7022") };
+            ShoppingCart = new ShoppingCartModel();
 
-        //    // Store a list of all the products for the online shop.
-        //    AddProduct(new ProductModel("BUBBLES-GUMBALL-APRON", "A Gumball for Your Thoughts Apron", 24, "bubbles-gumball-apron-black.jpg"));
-        //    AddProduct(new ProductModel("REX-MICROCONTROLLERS-APRON", "Great Microcontrollers Think Alike Apron", 24, "rex-microcontrollers-apron-black.jpg"));
-        //    AddProduct(new ProductModel("DOLORES-COMPUTE-BASEBALLHAT", "I Compute, Therefore I Am Baseball Hat", 29, "dolores-compute-baseballhat-black.jpg"));
-        //    AddProduct(new ProductModel("BUBBLES-GUMBALL-BASEBALLHAT", "A Gumball for Your Thoughts Baseball Hat", 29, "bubbles-gumball-baseballhat-black.jpg"));
-        //    AddProduct(new ProductModel("REX-MICROCONTROLLERS-BASEBALLHAT", "Great Microcontrollers Think Alike Baseball Hat", 29, "rex-microcontrollers-baseballhat-black.jpg"));
-        //    AddProduct(new ProductModel("DOLORES-COMPUTE-MUG", "I Compute, Therefore I Am Mug", 16, "dolores-compute-mug-black.jpg"));
-        //    AddProduct(new ProductModel("DOLORES-COMPUTE-TSHIRT", "I Compute, Therefore I Am T-shirt", 26, "dolores-compute-tshirt-black.jpg"));
-        //    AddProduct(new ProductModel("REX-MICROCONTROLLERS-TSHIRT", "Great Microcontrollers Think Alike T-shirt", 26, "rex-microcontrollers-tshirt-black.jpg"));
-        //}
+          
+        }
 
-        ///// <summary>
-        ///// Adds a product to the storage.
-        ///// </summary>
-        ///// <param name="productModel">The <see cref="ProductModel"/> type to be added.</param>
-        //private void AddProduct(Board productModel)
-        //{
-        //    if (!Products.Any(p => p.Id == productModel.Id))
-        //    {
-        //        Products.Add(productModel);
-        //    }
-        //}
+        public async Task<Board?> Get(int id)
+        {
+            var board = await httpClient.GetFromJsonAsync<Board>($"/v2/BoardsAPI/GetById/{id}");
+            return board;
+        }
+
+        /// <summary>
+        /// Gets all products
+        /// </summary>
+        /// <returns>A <see cref="IList<ProductModel>"/> type.</returns>
+        public async Task<IList<Board>> GetAll()
+        {
+            var boards = await httpClient.GetFromJsonAsync<List<Board>>("/v2/BoardsAPI/GetAllBoards");
+            return boards;
+        }
+
     }
 }

@@ -59,9 +59,10 @@ namespace SurfsUpAPI.Controllers.v2
         [HttpGet]
         public async Task<string> GetAllBoards()
         {
-            var boardsList = await _context.Boards.Include(x => x.Rentings).ToListAsync();
+            var boardsList = await _context.Boards.Include(x => x.Rentings).Include(x => x.Images).ToListAsync();
             return JsonConvert.SerializeObject(boardsList, new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
         }
+
 
         
     }

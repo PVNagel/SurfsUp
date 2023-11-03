@@ -1,6 +1,6 @@
 ﻿@using SurfsUpClassLibrary.Models;
 @using SurfsUpShop.Shared.Layout
-@page "/product/{Id}"
+@page "/product/{Id:int}"
 @inject IProductService productService
 @inject IShoppingCartService shoppingCartService
 @if (Product != null)
@@ -73,9 +73,9 @@
 @functions {
     protected override async Task OnInitializedAsync()
     {
-        AllProducts = await productService.GetAll();
+        await base.OnInitializedAsync();
 
-        base.OnInitialized();
+        AllProducts = await productService.GetAll();
     }
 
     protected override void OnParametersSet()

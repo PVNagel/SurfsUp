@@ -25,6 +25,16 @@ builder.Services.AddApiVersioning(option =>
         new HeaderApiVersionReader("x-version"));
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigin", builder =>
+    {
+        builder.WithOrigins("https://localhost:7237")
+        .AllowAnyHeader()
+        .AllowAnyMethod();
+    });
+});
+
 builder.Services.AddVersionedApiExplorer(option =>
 {
     option.GroupNameFormat = "'v'VVV";
@@ -43,6 +53,8 @@ if (app.Environment.IsDevelopment())
         c.SwaggerEndpoint("/swagger/v2/swagger.json", "API Version 2.0");
     });
 }
+
+app.UseCors("AllowSpecificOrigin");
 
 app.UseHttpsRedirection();
 
