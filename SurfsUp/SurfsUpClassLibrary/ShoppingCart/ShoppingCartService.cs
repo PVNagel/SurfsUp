@@ -1,6 +1,7 @@
 ﻿using MyBlazorShop.Libraries.Services.Storage;
 using MyBlazorShop.Libraries.Services.ShoppingCart.Models;
 using MyBlazorShop.Libraries.Services.Product.Models;
+using SurfsUpClassLibrary.Models;
 
 namespace MyBlazorShop.Libraries.Services.ShoppingCart
 {
@@ -38,15 +39,15 @@ namespace MyBlazorShop.Libraries.Services.ShoppingCart
         /// </summary>
         /// <param name="product">An instance of the product</param>
         /// <param name="quantity">The quantity they wish to add.</param>
-        public void AddProduct(ProductModel product, int quantity)
+        public void AddProduct(Board product, int quantity)
         {
             // Get all items from shopping cart.
             var items = Get().Items;
 
-            if (HasProduct(product.Sku))
+            if (HasProduct(product.Id))
             {
                 // Product exists, so find it in the shopping cart.
-                var item = items.First(i => i.Product.Sku == product.Sku);
+                var item = items.First(i => i.Product.Id == product.Id);
 
                 // Update quantity of the item.
                 item.UpdateQuantity(product, quantity);
@@ -67,10 +68,10 @@ namespace MyBlazorShop.Libraries.Services.ShoppingCart
             // Get all items from the cart.
             var items = Get().Items;
 
-            if (HasProduct(item.Product.Sku))
+            if (HasProduct(item.Product.Id))
             {
                 // Delete item from shopping cart
-                items.Remove(items.First(i => i.Product.Sku == item.Product.Sku));
+                items.Remove(items.First(i => i.Product.Id == item.Product.Id));
             }
         }
 
@@ -88,12 +89,11 @@ namespace MyBlazorShop.Libraries.Services.ShoppingCart
         /// </summary>
         /// <param name="sku">The unique identifier of the product.</param>
         /// <returns>A <see cref="bool"/> type which determines whether the product has been added to the shopping cart.</returns>
-        public bool HasProduct(string sku)
+        public bool HasProduct(int id)
         {
             var shoppingCart = Get();
 
-            return shoppingCart.Items.Any(i => i.Product.Sku == sku);
+            return shoppingCart.Items.Any(i => i.Product.Id == id);
         }
-
     }
 }

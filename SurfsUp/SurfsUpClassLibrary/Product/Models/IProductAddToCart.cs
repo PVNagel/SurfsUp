@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SurfsUpClassLibrary.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,7 +13,7 @@ namespace MyBlazorShop.Libraries.Services.Product.Models
     public interface IProductAddToCart
     {
         // An instance of the product
-        ProductModel? Product { get; set; }
+        Board? Product { get; set; }
 
         // The quantity wishing to be added to the cart
         int? Quantity { get; set; }

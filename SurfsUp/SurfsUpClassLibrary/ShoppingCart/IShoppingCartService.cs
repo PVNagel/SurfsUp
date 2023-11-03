@@ -1,5 +1,6 @@
 ﻿using MyBlazorShop.Libraries.Services.ShoppingCart.Models;
 using MyBlazorShop.Libraries.Services.Product.Models;
+using SurfsUpClassLibrary.Models;
 
 namespace MyBlazorShop.Libraries.Services.ShoppingCart
 {
@@ -20,7 +21,7 @@ namespace MyBlazorShop.Libraries.Services.ShoppingCart
         /// </summary>
         /// <param name="product">An instance of the product</param>
         /// <param name="quantity">The quantity they wish to add.</param>
-        void AddProduct(ProductModel product, int quantity);
+        void AddProduct(Board product, int quantity);
 
         /// <summary>
         /// Deletes a product from the shopping cart
@@ -37,8 +38,8 @@ namespace MyBlazorShop.Libraries.Services.ShoppingCart
         /// <summary>
         /// Has a product been added to the shopping cart?
         /// </summary>
-        /// <param name="sku">The unique identifier of the product.</param>
+        /// <param name="id">The unique identifier of the product.</param>
         /// <returns>A <see cref="bool"/> type which determines whether the product has been added to the shopping cart.</returns>
-        bool HasProduct(string sku);
+        bool HasProduct(int id);
     }
 }

@@ -1,5 +1,8 @@
 ﻿using MyBlazorShop.Libraries.Services.Product.Models;
 using MyBlazorShop.Libraries.Services.Storage;
+using SurfsUpClassLibrary.Models;
+using System.Net.Http.Json;
+using static System.Net.WebRequestMethods;
 
 namespace MyBlazorShop.Libraries.Services.Product
 {
@@ -12,15 +15,15 @@ namespace MyBlazorShop.Libraries.Services.Product
         /// <summary>
         /// A private reference to the storage service from the DI container.
         /// </summary>
-        private readonly IStorageService _storageService;
+        private readonly HttpClient httpClient;
 
         /// <summary>
         /// Constructs a product service.
         /// </summary>
         /// <param name="storageService">A reference to the storage service from the DI container.</param>
-        public ProductService(IStorageService storageService)
+        public ProductService()
         {
-            _storageService = storageService;
+            httpClient = new HttpClient { BaseAddress = new Uri("https://localhost:7022") };
         }
 
         /// <summary>
@@ -28,29 +31,20 @@ namespace MyBlazorShop.Libraries.Services.Product
         /// </summary>
         /// <param name="sku">The unique sku reference.</param>
         /// <returns>A <see cref="ProductModel"/> type.</returns>
-        public ProductModel? Get(string sku)
+        public async Task<Board?> Get(int id)
         {
-            return _storageService.Products.FirstOrDefault(p => p.Sku == sku);
-        }
-
-        /// <summary>
-        /// Get a product by slug.
-        /// </summary>
-        /// <param name="slug">The slug of the product</param>
-        /// <returns></returns>
-        public ProductModel? GetBySlug(string slug)
-        {
-            return _storageService.Products.FirstOrDefault(p => p.Slug == slug);
+            var board = await httpClient.GetFromJsonAsync<Board>($"/v2/BoardsAPI/GetById/{id}");
+            return board;
         }
 
         /// <summary>
         /// Gets all products
         /// </summary>
         /// <returns>A <see cref="IList<ProductModel>"/> type.</returns>
-        public IList<ProductModel> GetAll()
+        public async Task<IList<Board>> GetAll()
         {
-            return _storageService.Products.ToList();
+            var boards = await httpClient.GetFromJsonAsync<List<Board>>("/v2/BoardsAPI/GetAllBoards");
+            return boards;
         }
     }
-    
 }

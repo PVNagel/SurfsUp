@@ -1,5 +1,6 @@
 ﻿using MyBlazorShop.Libraries.Services.Product.Models;
 using MyBlazorShop.Libraries.Services.ShoppingCart.Models;
+using SurfsUpClassLibrary.Models;
 
 namespace MyBlazorShop.Libraries.Services.Storage
 {
@@ -11,7 +12,7 @@ namespace MyBlazorShop.Libraries.Services.Storage
         /// <summary>
         /// Stores a list of products.
         /// </summary>
-        IList<ProductModel> Products { get; }
+        IList<Board> Products { get; }
 
         /// <summary>
         /// Stores the shopping cart.

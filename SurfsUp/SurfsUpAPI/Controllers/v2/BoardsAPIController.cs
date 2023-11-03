@@ -46,6 +46,15 @@ namespace SurfsUpAPI.Controllers.v2
             _imageService = imageService;
         }
 
+        // GET: by board by id
+        [HttpGet]
+        [Route("{id}")]
+        public async Task<Board> GetById(int id)
+        {
+            var board = await _context.Boards.FindAsync(id);
+            return board;
+        }
+
         // GET: ALL Boards
         [HttpGet]
         public async Task<string> GetAllBoards()

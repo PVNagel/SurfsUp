@@ -1,5 +1,7 @@
-﻿@using SurfsUpShop.Libraries.Services.Product
+﻿@using SurfsUpClassLibrary.Models
+@using SurfsUpShop.Libraries.Services.Product
 @using SurfsUpShop.Libraries.Services.Product.Models
+@using SurfsUpClassLibrary
 @page "/"
 @inject IProductService productService
 <PageTitle>Product listings</PageTitle>
@@ -27,7 +29,7 @@
 }
 
 @code {
-    public IList<ProductModel> Products { get; set; }
+    public IList<Board> Products { get; set; }
 }
 @functions {
     protected override void OnInitialized()
