@@ -1,8 +1,7 @@
-﻿using MyBlazorShop.Libraries.Services.Product.Models;
-using MyBlazorShop.Libraries.Services.ShoppingCart.Models;
-using SurfsUpClassLibrary.Models;
+﻿using SurfsUpClassLibrary.Models;
+using SurfsUpClassLibrary.ShoppingCart.Models;
 
-namespace MyBlazorShop.Libraries.Services.Storage
+namespace SurfsUpClassLibrary.Storage
 {
     /// <summary>
     /// Stores the data used for the application.

@@ -1,7 +1,6 @@
-﻿@using SurfsUpClassLibrary.Models
-@using SurfsUpShop.Libraries.Services.Product
-@using SurfsUpShop.Libraries.Services.Product.Models
-@using SurfsUpClassLibrary
+﻿@using SurfsUpClassLibrary
+@using SurfsUpClassLibrary.Models
+@using SurfsUpClassLibrary.Product
 @page "/"
 @inject IProductService productService
 <PageTitle>Product listings</PageTitle>
@@ -32,9 +31,9 @@
     public IList<Board> Products { get; set; }
 }
 @functions {
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        Products = productService.GetAll();
+        Products = await productService.GetAll();
         base.OnInitialized();
     }
 }

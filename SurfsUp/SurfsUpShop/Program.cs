@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using SurfsUpShop.Web.BlazorWasm;
-using SurfsUpClassLibrary.Models;
+using SurfsUpClassLibrary.Product;
+using SurfsUpClassLibrary.ShoppingCart;
 //using SurfsUpShop.Libraries.Services.Product;
 //using SurfsUpShop.Libraries.Services.Storage;
 //using SurfsUpShop.Libraries.Services.ShoppingCart;
@@ -12,7 +12,6 @@ builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
-builder.Services.AddSingleton<IStorageService, StorageService>();
 builder.Services.AddSingleton<IShoppingCartService, ShoppingCartService>();
 builder.Services.AddTransient<IProductService, ProductService>();
 

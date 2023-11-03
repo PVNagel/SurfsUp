@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MyBlazorShop.Libraries.Services.Product.Models
+namespace SurfsUpClassLibrary.Product.Models
 {
     /// <summary>
     /// The information needed in a product listing Razor component

@@ -1,10 +1,8 @@
-﻿using MyBlazorShop.Libraries.Services.Product.Models;
-using MyBlazorShop.Libraries.Services.Storage;
-using SurfsUpClassLibrary.Models;
+﻿using SurfsUpClassLibrary.Models;
 using System.Net.Http.Json;
 using static System.Net.WebRequestMethods;
 
-namespace MyBlazorShop.Libraries.Services.Product
+namespace SurfsUpClassLibrary.Product
 {
 
     /// <summary>
@@ -30,7 +28,7 @@ namespace MyBlazorShop.Libraries.Services.Product
         /// Gets a product.
         /// </summary>
         /// <param name="sku">The unique sku reference.</param>
-        /// <returns>A <see cref="ProductModel"/> type.</returns>
+        /// <returns>A <see cref="Board"/> type.</returns>
         public async Task<Board?> Get(int id)
         {
             var board = await httpClient.GetFromJsonAsync<Board>($"/v2/BoardsAPI/GetById/{id}");
