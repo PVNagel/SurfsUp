@@ -1,9 +1,10 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using SurfsUpShop.Web.BlazorWasm;
-using SurfsUpShop.Libraries.Services.Product;
-using SurfsUpShop.Libraries.Services.Storage;
-using SurfsUpShop.Libraries.Services.ShoppingCart;
+using SurfsUpClassLibrary.Models;
+//using SurfsUpShop.Libraries.Services.Product;
+//using SurfsUpShop.Libraries.Services.Storage;
+//using SurfsUpShop.Libraries.Services.ShoppingCart;
 using SurfsUpShop;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
