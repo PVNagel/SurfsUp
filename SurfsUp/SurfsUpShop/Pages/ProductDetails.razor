@@ -22,7 +22,7 @@
                 }
                 else {
                     <div class="display:flex flex-direction:column flex-grow:0 flex-shrink:0 margin-bottom:32 padding-horizontal:16 width:100 @@mq-768--width:50">
-                       <img src="images/" alt="Photo of @Product.Name" class="margin-bottom:32 max-width:100" />
+                       <img src="@imagePath" alt="Photo of @Product.Name" class="margin-bottom:32 max-width:100" />
                    </div>
                    <div class="display:flex flex-direction:column flex-grow:0 flex-shrink:0 margin-bottom:32 padding-horizontal:16 width:100 @@mq-768--width:50">
                        <h1 class="font-weight:500 font-size:28 line-height:1_142 margin-bottom:24 @@mq-768--font-size:32 @@mq-768--line-height:1_125">@Product.Name</h1> 
@@ -69,18 +69,29 @@
     public int Id { get; set; }
 
     public IList<Board>? AllProducts { get; set; }    
+
+    public string imagePath = "";
+
+    
 }
 @functions {
     protected override async Task OnInitializedAsync()
     {
-        await base.OnInitializedAsync();
 
         AllProducts = await productService.GetAll();
+
+       
+        await base.OnInitializedAsync();
     }
 
-    protected override void OnParametersSet()
+    protected override async Task OnParametersSetAsync()
     {
-        Product = productService.Get(Id).Result;
+        Product = await productService.Get(Id);
+
+            if (Product.Images != null)
+            {
+                imagePath = Product.Images.ElementAt(0).Path;
+            }
     }
 
     public void AddToCart()

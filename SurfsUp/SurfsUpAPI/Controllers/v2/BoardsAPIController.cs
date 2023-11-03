@@ -49,10 +49,10 @@ namespace SurfsUpAPI.Controllers.v2
         // GET: by board by id
         [HttpGet]
         [Route("{id}")]
-        public async Task<Board> GetById(int id)
+        public async Task<string> GetById(int id)
         {
-            var board = await _context.Boards.FindAsync(id);
-            return board;
+            var board = await _context.Boards.Include(x => x.Images).FirstOrDefaultAsync(x => x.Id == id);
+            return JsonConvert.SerializeObject(board, new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
         }
 
         // GET: ALL Boards
