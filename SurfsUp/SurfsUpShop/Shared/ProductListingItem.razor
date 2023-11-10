@@ -15,7 +15,8 @@
            // </a> *@
             <Button Color="ButtonColor.Primary" @onclick="ShowProduct">Show Product</Button>
             <input type="text" placeholder="Quantity" name="Qty" @bind="Quantity" @bind:event="oninput" class="padding:12 &:hocus--border-color:neutral-000000 appearance:none background-color:neutral-ffffff border-color:neutral-4c5b5c border-radius:0 border-style:solid border-width:1 color:neutral-483e40 min-height:form-input width:100" />
-            <button @onclick="AddToCart" class="display:inline-block padding-horizontal:24 padding-horizontal:24 &amp;:hocus--background-color:yellow-f0c808 background-color:orange-ff583d color:neutral-222224 font-size:18 font-weight:700 line-height:1 margin-bottom:32 padding-vertical:12 padding-vertical:16">
+            <ConfirmDialog @ref="dialog" />
+            <button type="button" @onclick="AddToCart" Color="ButtonColor.Primary" class="btn btn-primary">
                 @if (shoppingCartService.HasProduct(Product.Id))
                 {
                     <span>Added to cart. 
@@ -41,6 +42,36 @@
 
     public string imagePath = "";
 
+
+    private ConfirmDialog dialog = default!;
+    public async Task AddToCart()
+    {
+        var options = new ConfirmDialogOptions
+            {
+                YesButtonText = "OK",
+                YesButtonColor = ButtonColor.Success,
+                NoButtonText = "CANCEL",
+                NoButtonColor = ButtonColor.Danger
+            };
+
+        var confirmation = await dialog.ShowAsync(
+            title: "Simple Confirm Dialog",
+            message1: "Do you want to proceed?",
+            confirmDialogOptions: options);
+
+        if (confirmation)
+        {
+            if (Product != null){
+                shoppingCartService.AddProduct(Product, Quantity ?? 1);
+                Quantity = null;
+            }
+        }
+        else
+        {
+            // do something
+        }
+    }
+
     protected override void OnInitialized()
     {
         if(Product.Images != null){
@@ -55,15 +86,5 @@
         var parameters = new Dictionary<string, object>();
         parameters.Add("Id", Product.Id);
         await modal.ShowAsync<SurfsUpShop.Pages.ProductDetails>(title: "Product Details", parameters: parameters);
-    }
-}
-@functions {
-    public void AddToCart()
-    {
-        if (Product != null)
-        {
-            shoppingCartService.AddProduct(Product, Quantity ?? 1);
-            Quantity = null;
-        }
     }
 }
