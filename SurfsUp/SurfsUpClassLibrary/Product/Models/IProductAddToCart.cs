@@ -21,6 +21,6 @@ namespace SurfsUpClassLibrary.Product.Models
         /// <summary>
         /// The method to add a product to cart
         /// </summary>
-        void AddToCart();
+        Task AddToCart();
     }
 }

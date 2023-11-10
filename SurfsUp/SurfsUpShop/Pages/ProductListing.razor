@@ -17,11 +17,14 @@
             <div class="display:flex flex-grow:1 flex-wrap:wrap margin-bottom:-32 margin-horizontal:-16">
                 <div class="display:flex flex-direction:column flex-grow:0 flex-shrink:0 margin-bottom:32 padding-horizontal:16 width:100 @@mq-768--width:100">
                     <ul class="display:flex flex-grow:1 flex-wrap:wrap margin-bottom:-32 margin-horizontal:-16">
-                        @foreach(var product in Products)
+                        @foreach(var product in PaginatedList)
                         {
                             <ProductListingItem Product="product"></ProductListingItem>
-                        }                        
+                        }    
+                        
                     </ul>
+                    <Pagination ActivePageNumber="currentPageNumber" TotalPages="Convert.ToInt32(TotalPage)" Size="PaginationSize.Small" PageChanged="OnPageChangedAsync" />
+
                 </div>
             </div>
         </div>
@@ -30,11 +33,26 @@
 
 @code {
     public IList<Board> Products { get; set; }
+    public IList<Board> PaginatedList { get; set; }
+
+
+    int currentPageNumber = 1;
+    double PageSize = 3;
+    double TotalPage;
+
+    private async Task OnPageChangedAsync(int newPageNumber)
+    {
+        PaginatedList = await PaginatedList<Board>.CreateAsync(Products.ToList(), newPageNumber, Convert.ToInt32(PageSize));
+        await Task.Run(() => { currentPageNumber = newPageNumber; });
+    }
 }
 @functions {
     protected override async Task OnInitializedAsync()
     {
         Products = await productService.GetAll();
+        double decimalTotalPage = Convert.ToDouble(Products.Count()) / PageSize;
+        TotalPage = Convert.ToInt32(Math.Ceiling(decimalTotalPage));
+        PaginatedList = await PaginatedList<Board>.CreateAsync(Products.ToList(), currentPageNumber, Convert.ToInt32(PageSize));
         base.OnInitialized();
     }
 }
