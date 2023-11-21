@@ -1,6 +1,6 @@
 ﻿@inject IShoppingCartService shoppingCartService
 @implements IProductAddToCart
-<Modal @ref="modal" />
+<Modal @ref="modal" Size="ModalSize.Large" />
 <ConfirmDialog @ref="dialog" />
 
 @if (Product != null)

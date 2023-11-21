@@ -23,7 +23,7 @@ namespace SurfsUp.Data
             }
         }
 
-        public static void SeedUsers(UserManager<SurfsUpUser> userManager) 
+        public static void SeedUsers(UserManager<SurfsUpUser> userManager)
         {
             string email = "admin@admin.com";
             string password = "Password123.";
@@ -56,11 +56,11 @@ namespace SurfsUp.Data
 
         public static void Initialize(SurfsUpContext context)
         {
-           
-                if (!context.Boards.Any())
-                {
-                    // Seeder boards ind
-                    context.Boards.AddRange(new List<Board>
+
+            if (!context.Boards.Any())
+            {
+                // Seeder boards ind
+                context.Boards.AddRange(new List<Board>
                     {
                          new Board
                         {
@@ -184,71 +184,30 @@ namespace SurfsUp.Data
                         }
                     });
 
-                    //gemmer ændringer i databasen, så vi kan få de nye id'er.
-                    //ellers kunne vi godt have nøjes med at gøre det til
-                    //sidst efter vi seedede images, men vi skal bruge id'erne.
-                    context.SaveChanges();
+                //gemmer ændringer i databasen, så vi kan få de nye id'er.
+                //ellers kunne vi godt have nøjes med at gøre det til
+                //sidst efter vi seedede images, men vi skal bruge id'erne.
+                context.SaveChanges();
 
-                    // henter alle board id's
-                    var newBoardIds = context.Boards.Select(board => board.Id).ToList();
+                // henter alle board id's
+                var newBoardIds = context.Boards.Select(board => board.Id).ToList();
 
-                    // seeder images ind med de nye boards id'er
-                    context.Images.AddRange(new List<Image>
+                // seeder images ind med de nye boards id'er
+                List<Image> images = new List<Image>();
+
+                for (int i = 0; i < newBoardIds.Count; i++)
+                {
+                    images.AddRange(new List<Image>
                     {
-                        new Image
-                        {
-                            Path = "/SeedImages/a.jpg",
-                            BoardId = newBoardIds[0]
-                        },
-                        new Image
-                        {
-                            Path = "/SeedImages/a.jpg",
-                            BoardId = newBoardIds[1]
-                        },
-                        new Image
-                        {
-                            Path = "/SeedImages/a.jpg",
-                            BoardId = newBoardIds[2]
-                        },
-                        new Image
-                        {
-                            Path = "/SeedImages/a.jpg",
-                            BoardId = newBoardIds[3]
-                        },
-                        new Image
-                        {
-                            Path = "/SeedImages/a.jpg",
-                            BoardId = newBoardIds[4]
-                        },
-                        new Image
-                        {
-                            Path = "/SeedImages/a.jpg",
-                            BoardId = newBoardIds[5]
-                        },
-                        new Image
-                        {
-                            Path = "/SeedImages/a.jpg",
-                            BoardId = newBoardIds[6]
-                        },
-                        new Image
-                        {
-                            Path = "/SeedImages/a.jpg",
-                            BoardId = newBoardIds[7]
-                        },
-                        new Image
-                        {
-                            Path = "/SeedImages/a.jpg",
-                            BoardId = newBoardIds[8]
-                        },
-                        new Image
-                        {
-                            Path = "/SeedImages/a.jpg",
-                            BoardId = newBoardIds[9]
-                        },
+                        new Image { Path = "/SeedImages/a.jpg", BoardId = newBoardIds[i] },
+                        new Image { Path = "/SeedImages/c.jpg", BoardId = newBoardIds[i] },
+                        new Image { Path = "/SeedImages/d.jpg", BoardId = newBoardIds[i] }
                     });
-                    context.SaveChanges();
                 }
-            
+                context.Images.AddRange(images);
+                context.SaveChanges();
+            }
+
         }
     }
 }
