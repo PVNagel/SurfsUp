@@ -131,12 +131,13 @@
 
     public async Task ChangeImage()
     {
-        if (currentImage < Product.Images.Count)
+        try
         {
-            currentImage = currentImage + 1;
+            // Hvis currentImage bliver til 3 og Product.Images.Count er 3. Så bliver modulo operationen = 0, så currentImage bliver sat til 0.
+            currentImage = (currentImage + 1) % Product.Images.Count;
             imagePath = Product.Images.ElementAt(currentImage).Path;
         }
-        else
+        catch (ArgumentOutOfRangeException)
         {
             currentImage = 0;
             imagePath = Product.Images.ElementAt(currentImage).Path;
