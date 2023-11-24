@@ -3,6 +3,8 @@
 @page "/product/{Id:int}"
 @inject IProductService productService
 @inject IShoppingCartService shoppingCartService
+<ConfirmDialog @ref="dialog"/>
+
 @if (Product != null)
 {
     <PageTitle>@Product.Name</PageTitle>
@@ -22,8 +24,8 @@
                 }
                 else {
                     <div class="display:flex flex-direction:column flex-grow:0 flex-shrink:0 margin-bottom:32 padding-horizontal:16 width:100 @@mq-768--width:50">
-                       <img src="@imagePath" alt="Photo of @Product.Name" class="margin-bottom:32 max-width:100" />
-                   </div>
+                        <img src="@imagePath" alt="Photo of @Product.Name" @onclick="ChangeImage" width="350" />
+                    </div>
                    <div class="display:flex flex-direction:column flex-grow:0 flex-shrink:0 margin-bottom:32 padding-horizontal:16 width:100 @@mq-768--width:50">
                        <h1 class="font-weight:500 font-size:28 line-height:1_142 margin-bottom:24 @@mq-768--font-size:32 @@mq-768--line-height:1_125">@Product.Name</h1> 
                        <p class="font-weight:500 font-size:28 line-height:1_142 margin-bottom:24">$@Product.Price.ToString("0.00")</p>
@@ -50,7 +52,7 @@
                             <ul>
                                 @foreach (var product in AllProducts)
                                 {
-                                    <li><a href="/boards/@product.Id">@product.Name</a></li>
+                                    <li><a href="/product/@product.Id">@product.Name</a></li>
                                 }
                             </ul>
                         }
@@ -60,27 +62,27 @@
            </div>
        </div>
     </main>
+
 @code {
     public Board? Product { get; set; }
-
     public int? Quantity { get; set; }
 
     [Parameter]
     public int Id { get; set; }
 
     public IList<Board>? AllProducts { get; set; }    
-
     public string imagePath = "";
-
-    
+    private ConfirmDialog dialog = default!;
+    private int currentImage = 0;
 }
+
 @functions {
     protected override async Task OnInitializedAsync()
     {
 
         AllProducts = await productService.GetAll();
 
-       
+
         await base.OnInitializedAsync();
     }
 
@@ -88,18 +90,56 @@
     {
         Product = await productService.Get(Id);
 
-            if (Product.Images != null)
-            {
-                imagePath = Product.Images.ElementAt(0).Path;
-            }
+        if (Product.Images != null)
+        {
+            imagePath = Product.Images.ElementAt(0).Path;
+        }
     }
 
-    public void AddToCart()
+    public async void AddToCart()
     {
-        if (Product != null)
+        var options = new ConfirmDialogOptions
         {
-            shoppingCartService.AddProduct(Product, Quantity ?? 1);
+            YesButtonText = "CONFIRM",
+            YesButtonColor = ButtonColor.Success,
+            NoButtonText = "CANCEL",
+            NoButtonColor = ButtonColor.Danger
+        };
+
+        var confirmation = await dialog.ShowAsync
+        (
+           title: $"Adding {Quantity} items to cart",
+           message1: "Do you want to proceed?",
+           confirmDialogOptions: options
+        );
+
+        if (confirmation)
+        {
+            if (Product != null)
+            {
+                shoppingCartService.AddProduct(Product, Quantity ?? 1);
+                Quantity = null;
+                StateHasChanged();
+            }
+        }
+        else
+        {
             Quantity = null;
+            StateHasChanged();
+        }
+    }
+
+    public async Task ChangeImage()
+    {
+        if (currentImage < Product.Images.Count)
+        {
+            currentImage = currentImage + 1;
+            imagePath = Product.Images.ElementAt(currentImage).Path;
+        }
+        else
+        {
+            currentImage = 0;
+            imagePath = Product.Images.ElementAt(currentImage).Path;
         }
     }
 }
