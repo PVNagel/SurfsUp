@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Versioning;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
+using SurfsUpAPI.Controllers.Hubs;
 using SurfsUpAPI.Data;
 using SurfsUpAPI.Services;
 
@@ -41,6 +43,13 @@ builder.Services.AddVersionedApiExplorer(option =>
     option.SubstituteApiVersionInUrl = true;
 });
 
+builder.Services.AddSignalR();
+builder.Services.AddResponseCompression(options =>
+{
+    options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
+        new[] { "application/octet-stream" });
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -61,5 +70,7 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapHub<LiveChatHub>("/live-chat");
 
 app.Run();
