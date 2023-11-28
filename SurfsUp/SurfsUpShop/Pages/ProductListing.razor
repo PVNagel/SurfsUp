@@ -1,4 +1,4 @@
-﻿@using SurfsUpClassLibrary
+﻿﻿@using SurfsUpClassLibrary
 @using SurfsUpClassLibrary.Models
 @using SurfsUpClassLibrary.Product
 @page "/"
@@ -7,7 +7,8 @@
 <HeadContent>
     <meta name="description" content="Product listing page" />
 </HeadContent>
-<Hero Title="Shop" Description="Share your love of technology, and spread good cheer, with Binaryville official merchandise, including t-shirts, hats, mugs, aprons, posters, stickers, and more. Each unique treasure features a charming Binaryville robot, encapsulated inside a motivating historical quote, cleverly updated for the times. Even the most hard-to-please individuals can't resist these infectious designs. Perfect for the techie in your life!" Image="product-montage.png" BackgroundImage="shop-hero-yellow"></Hero>
+<Hero Title="Shop" Description="Share your love of surfing, and spread good cheer, with Surf's Up official merchandise, including surfboards, surfboards and surfboards! Even the most hard-to-please individuals can't resist these infectious designs. Perfect for the surfer in your life!" Image="CodyMaverick.png" BackgroundImage="shop-hero-yellow"></Hero>
+
 
 @if (Products?.Any() ?? false)
 {
@@ -16,11 +17,14 @@
             <div class="display:flex flex-grow:1 flex-wrap:wrap margin-bottom:-32 margin-horizontal:-16">
                 <div class="display:flex flex-direction:column flex-grow:0 flex-shrink:0 margin-bottom:32 padding-horizontal:16 width:100 @@mq-768--width:100">
                     <ul class="display:flex flex-grow:1 flex-wrap:wrap margin-bottom:-32 margin-horizontal:-16">
-                        @foreach(var product in Products)
+                        @foreach(var product in PaginatedList)
                         {
                             <ProductListingItem Product="product"></ProductListingItem>
-                        }                        
+                        }    
+                        
                     </ul>
+                    <Pagination ActivePageNumber="currentPageNumber" TotalPages="Convert.ToInt32(TotalPage)" Size="PaginationSize.Small" PageChanged="OnPageChangedAsync" />
+
                 </div>
             </div>
         </div>
@@ -29,11 +33,27 @@
 
 @code {
     public IList<Board> Products { get; set; }
+    public IList<Board> PaginatedList { get; set; }
+
+
+    int currentPageNumber = 1;
+    double PageSize = 3;
+    double TotalPage;
+
+    private async Task OnPageChangedAsync(int newPageNumber)
+    {
+        PaginatedList = await PaginatedList<Board>.CreateAsync(Products.ToList(), newPageNumber, Convert.ToInt32(PageSize));
+        await Task.Run(() => { currentPageNumber = newPageNumber; });
+    }
 }
+
 @functions {
     protected override async Task OnInitializedAsync()
     {
         Products = await productService.GetAll();
+        double decimalTotalPage = Convert.ToDouble(Products.Count()) / PageSize;
+        TotalPage = Convert.ToInt32(Math.Ceiling(decimalTotalPage));
+        PaginatedList = await PaginatedList<Board>.CreateAsync(Products.ToList(), currentPageNumber, Convert.ToInt32(PageSize));
         base.OnInitialized();
     }
 }
