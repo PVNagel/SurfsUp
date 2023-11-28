@@ -1,0 +1,75 @@
+﻿@using SurfsUpClassLibrary.Help.Models
+@using Microsoft.AspNetCore.SignalR.Client
+@page "/help"
+@inject NavigationManager navigationManager
+@implements IAsyncDisposable
+
+<link href="css/bigstarcollectables.plugins.css" rel="stylesheet" />
+<link href="css/bigstarcollectables.common.css" rel="stylesheet" />
+<HeadContent>
+    <link href="/css/bigstarcollectables.help.css" rel="stylesheet" />
+</HeadContent>
+<section id="help">
+    <h1>Help</h1>
+    <p>If you have any questions, please add them to our live chat</p>
+    @if (messages?.Any() ?? false)
+    {
+        <ul>
+            @foreach (var message in messages)
+            {
+                <li class="@message.ClassName">@message.Message</li>
+            }
+        </ul>
+    }
+    <form>
+        <input @bind-value="Message" />
+        <button class="button lg solid gold" type="button" @onclick="Send">Send message</button>
+    </form>
+</section>
+
+@code {
+    private string? Message { get; set; }
+    private HubConnection? hubConnection;
+    private List<LiveChatMessage> messages = new List<LiveChatMessage>();
+    private string? userInput;
+    private string? messageInput;
+}
+
+@functions {
+    protected override async Task OnInitializedAsync()
+    {
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl(navigationManager.ToAbsoluteUri("https://localhost:7022/live-chat"))
+            .Build();
+
+        hubConnection.On<string>("ReceiveMessage", (message) =>
+        {
+            messages.Add(new LiveChatMessage(message, LiveChatTypeEnum.RECEIVED));
+            StateHasChanged();
+        });
+
+        await hubConnection.StartAsync();
+    }
+
+    private async Task Send()
+    {
+        if (hubConnection != null && hubConnection.State == HubConnectionState.Connected)
+        {
+            await hubConnection.SendAsync("SendMessageAsync", Message);
+            messages.Add(new LiveChatMessage(Message, LiveChatTypeEnum.SENT));
+
+            Message = string.Empty;
+        }
+    }
+
+    public bool IsConnected =>
+        hubConnection?.State == HubConnectionState.Connected;
+
+    public async ValueTask DisposeAsync()
+    {
+        if (hubConnection is not null)
+        {
+            await hubConnection.DisposeAsync();
+        }
+    }
+}
