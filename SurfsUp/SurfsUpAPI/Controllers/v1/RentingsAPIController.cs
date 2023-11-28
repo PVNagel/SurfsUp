@@ -44,14 +44,11 @@ namespace SurfsUpAPI.Controllers.v1
                 rentings = User.IsInRole("Admin") ?
                 await _context.Renting.Include(r => r.Board).Include(r => r.SurfsUpUser).ToListAsync() :
                 await _context.Renting.Include(r => r.Board).Include(r => r.SurfsUpUser).Where(x => x.SurfsUpUserId == userId).ToListAsync();
-
             }
             else
             {
                 rentings = await _context.Renting.Include(r => r.Board).Where(x => x.GuestUserIp == guestUserIp).ToListAsync();
             }
-            
-
             return JsonConvert.SerializeObject(rentings, new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
         }
 
@@ -98,35 +95,36 @@ namespace SurfsUpAPI.Controllers.v1
         {
             try
             {
-                if(renting.GuestUserIp == null && renting.SurfsUpUserId == null)
-                {
-                    return BadRequest();
-                }
-                else
-                {
-                    if(renting.GuestUserIp != null)
-                    {
-                        var guestUser = await _context.GuestUsers.FindAsync(renting.GuestUserIp);
-                        if(guestUser == null)
-                        {
-                            return BadRequest();
-                        }
-                    }
-                    else
-                    {
-                        if (User.Identity.IsAuthenticated)
-                        {
-                            if (User.FindFirst(ClaimTypes.NameIdentifier).Value != renting.SurfsUpUserId)
-                            {
-                                return BadRequest();
-                            }
-                        }
-                        else
-                        {
-                            return BadRequest();
-                        }
-                    }
-                }
+                //*****ATTENTION NEED NEW FIX*****
+                //if(renting.GuestUserIp == null && renting.SurfsUpUserId == null)
+                //{
+                //    return BadRequest();
+                //}
+                //else
+                //{
+                //    if(renting.GuestUserIp != null)
+                //    {
+                //        var guestUser = await _context.GuestUsers.FindAsync(renting.GuestUserIp);
+                //        if(guestUser == null)
+                //        {
+                //            return BadRequest();
+                //        }
+                //    }
+                //    else
+                //    {
+                //        if (User.Identity.IsAuthenticated)
+                //        {
+                //            if (User.FindFirst(ClaimTypes.NameIdentifier).Value != renting.SurfsUpUserId)
+                //            {
+                //                return BadRequest();
+                //            }
+                //        }
+                //        else
+                //        {
+                //            return BadRequest();
+                //        }
+                //    }
+                //}
 
                 if (ModelState.IsValid)
                 {
