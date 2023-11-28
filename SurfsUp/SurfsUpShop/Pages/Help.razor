@@ -3,67 +3,71 @@
 @page "/help"
 @inject NavigationManager navigationManager
 @implements IAsyncDisposable
+
+<link href="css/bigstarcollectables.plugins.css" rel="stylesheet" />
+<link href="css/bigstarcollectables.common.css" rel="stylesheet" />
 <HeadContent>
     <link href="/css/bigstarcollectables.help.css" rel="stylesheet" />
 </HeadContent>
 <section id="help">
     <h1>Help</h1>
     <p>If you have any questions, please add them to our live chat</p>
-    @if (Messages?.Any() ?? false)
+    @if (messages?.Any() ?? false)
     {
         <ul>
-            @foreach (var message in Messages)
+            @foreach (var message in messages)
             {
                 <li class="@message.ClassName">@message.Message</li>
             }
         </ul>
     }
     <form>
-        <InputText @bind-Value="Message" />
-        <button class="button lg solid gold" type="button" @onclick="SendMessageAsync">Send message</button>
+        <input @bind-value="Message" />
+        <button class="button lg solid gold" type="button" @onclick="Send">Send message</button>
     </form>
 </section>
 
 @code {
     private string? Message { get; set; }
-    private List<LiveChatMessage>? Messages { get; set; }
     private HubConnection? hubConnection;
+    private List<LiveChatMessage> messages = new List<LiveChatMessage>();
+    private string? userInput;
+    private string? messageInput;
 }
 
 @functions {
     protected override async Task OnInitializedAsync()
     {
-        Messages = new List<LiveChatMessage>();
-
         hubConnection = new HubConnectionBuilder()
-            .WithUrl(navigationManager.ToAbsoluteUri("/live-chat"))
+            .WithUrl(navigationManager.ToAbsoluteUri("https://localhost:7022/live-chat"))
             .Build();
 
         hubConnection.On<string>("ReceiveMessage", (message) =>
         {
-            Messages.Add(new LiveChatMessage(message, LiveChatTypeEnum.RECEIVED));
+            messages.Add(new LiveChatMessage(message, LiveChatTypeEnum.RECEIVED));
             StateHasChanged();
         });
 
         await hubConnection.StartAsync();
-
-        await base.OnInitializedAsync();
     }
 
-    private async Task SendMessageAsync()
+    private async Task Send()
     {
         if (hubConnection != null && hubConnection.State == HubConnectionState.Connected)
         {
             await hubConnection.SendAsync("SendMessageAsync", Message);
-            Messages.Add(new LiveChatMessage(Message, LiveChatTypeEnum.SENT));
+            messages.Add(new LiveChatMessage(Message, LiveChatTypeEnum.SENT));
 
             Message = string.Empty;
         }
     }
 
+    public bool IsConnected =>
+        hubConnection?.State == HubConnectionState.Connected;
+
     public async ValueTask DisposeAsync()
     {
-        if (hubConnection != null)
+        if (hubConnection is not null)
         {
             await hubConnection.DisposeAsync();
         }
