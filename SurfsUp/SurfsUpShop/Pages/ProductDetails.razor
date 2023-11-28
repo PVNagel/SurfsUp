@@ -3,7 +3,7 @@
 @page "/product/{Id:int}"
 @inject IProductService productService
 @inject IShoppingCartService shoppingCartService
-<ConfirmDialog @ref="dialog" />
+<ConfirmDialog @ref="dialog"/>
 
 @if (Product != null)
 {
@@ -23,9 +23,9 @@
                     </div>
                 }
                 else {
-                    <div class="display:flex flex-direction:column flex-grow:0 flex-shrink:0 margin-bottom:32 padding-horizontal:16 width:200 @@mq-768--width:50">
-                        <img src="@imagePath" alt="Photo of @Product.Name" @onclick="ChangePicture" width="300"/>
-                   </div>
+                    <div class="display:flex flex-direction:column flex-grow:0 flex-shrink:0 margin-bottom:32 padding-horizontal:16 width:100 @@mq-768--width:50">
+                        <img src="@imagePath" alt="Photo of @Product.Name" @onclick="ChangeImage" width="350" />
+                    </div>
                    <div class="display:flex flex-direction:column flex-grow:0 flex-shrink:0 margin-bottom:32 padding-horizontal:16 width:100 @@mq-768--width:50">
                        <h1 class="font-weight:500 font-size:28 line-height:1_142 margin-bottom:24 @@mq-768--font-size:32 @@mq-768--line-height:1_125">@Product.Name</h1> 
                        <p class="font-weight:500 font-size:28 line-height:1_142 margin-bottom:24">$@Product.Price.ToString("0.00")</p>
@@ -65,23 +65,20 @@
            </div>
        </div>
     </main>
+
 @code {
     public Board? Product { get; set; }
-
     public int? Quantity { get; set; }
 
     [Parameter]
     public int Id { get; set; }
 
     public IList<Board>? AllProducts { get; set; }    
-
     public string imagePath = "";
-
     private ConfirmDialog dialog = default!;
-
-    public int currentPicture = 0;
-
+    private int currentImage = 0;
 }
+
 @functions {
     protected override async Task OnInitializedAsync()
     {
@@ -102,20 +99,22 @@
         }
     }
 
-    public async Task AddToCart()
+    public async void AddToCart()
     {
         var options = new ConfirmDialogOptions
-            {
-                YesButtonText = "OK",
-                YesButtonColor = ButtonColor.Success,
-                NoButtonText = "CANCEL",
-                NoButtonColor = ButtonColor.Danger
-            };
+        {
+            YesButtonText = "CONFIRM",
+            YesButtonColor = ButtonColor.Success,
+            NoButtonText = "CANCEL",
+            NoButtonColor = ButtonColor.Danger
+        };
 
-        var confirmation = await dialog.ShowAsync(
-            title: "Simple Confirm Dialog",
-            message1: "Do you want to proceed?",
-            confirmDialogOptions: options);
+        var confirmation = await dialog.ShowAsync
+        (
+           title: $"Adding {Quantity} items to cart",
+           message1: "Do you want to proceed?",
+           confirmDialogOptions: options
+        );
 
         if (confirmation)
         {
@@ -123,25 +122,32 @@
             {
                 shoppingCartService.AddProduct(Product, Quantity ?? 1);
                 Quantity = null;
+                StateHasChanged();
             }
         }
         else
         {
+            Quantity = null;
+            StateHasChanged();
+        }
+    }
+
+    public async Task ChangeImage()
+    {
+        try
+        {
+            // Hvis currentImage bliver til 3 og Product.Images.Count er 3. Så bliver modulo operationen = 0, så currentImage bliver sat til 0.
+            currentImage = (currentImage + 1) % Product.Images.Count;
+            imagePath = Product.Images.ElementAt(currentImage).Path;
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            currentImage = 0;
+            imagePath = Product.Images.ElementAt(currentImage).Path;
             // do something
         }
     }
 
-    public async Task ChangePicture()
-    {
-        if (currentPicture < Product.Images.Count)
-        {
-            currentPicture = currentPicture + 1;
-            imagePath = Product.Images.ElementAt(currentPicture).Path;
-        }
-        else
-        {
-            currentPicture = 0;
-            imagePath = Product.Images.ElementAt(currentPicture).Path;
         }
     }
 }
