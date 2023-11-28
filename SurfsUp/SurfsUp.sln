@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SurfsUpClassLibrary", "Surf
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SurfsUpUnitTest", "SurfsUpUnitTest\SurfsUpUnitTest.csproj", "{DB721257-577A-416D-BBC5-F0505C377CB9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SurfsUpShop", "SurfsUpShop\SurfsUpShop.csproj", "{9C373566-02AB-4E49-BF21-5136FD812532}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SurfsUpShop", "SurfsUpShop\SurfsUpShop.csproj", "{9C373566-02AB-4E49-BF21-5136FD812532}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
